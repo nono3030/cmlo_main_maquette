@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLMO · Stock des réserves — maquette</title>
+<style>
+  /* ===== Tokens ===== */
+  :root {
+    color-scheme: light;
+    --bg: #edf2f8; --surface: #ffffff; --surface-2: #f6f9fd;
+    --ink: #0f172a; --ink-2: #334155; --ink-3: #5b6b80;
+    --line: #e2e8f0; --line-2: #eef2f7; --field: #d5dee8; --field-hover: #b4c2d3;
+    --accent: #1d6fe0; --accent-ink: #1749a0; --accent-soft: #eaf2fe; --accent-line: #c7dbfb; --focus: #2563eb;
+    --green: #0f7a4d; --green-bg: #e8f8f0; --green-line: #b7e6cd; --green-solid: #22a06b;
+    --amber: #8a5300; --amber-bg: #fff5e1; --amber-line: #f6d79a; --amber-solid: #f0a92e;
+    --red: #c0262d; --red-bg: #fff0f0; --red-line: #f7c4c6; --red-solid: #e5484d;
+    --out: #9a3412; --out-bg: #fff7ed; --out-line: #fed7aa;
+    --grey: #475569; --grey-bg: #f1f5f9; --grey-solid: #94a3b8;
+    --r-sm: 10px; --r: 14px; --r-lg: 20px; --r-xl: 28px;
+    --shadow-sm: 0 1px 2px rgba(15, 35, 70, .05);
+    --shadow: 0 1px 2px rgba(15, 35, 70, .04), 0 10px 28px rgba(15, 35, 70, .06);
+    --shadow-pop: 0 16px 36px rgba(15, 35, 70, .16);
+    --ring: 0 0 0 4px rgba(37, 99, 235, .18);
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --i-info: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 11v5.2M12 7.7v.1'/%3E%3C/svg%3E");
+    --i-error: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.6v5.4M12 16.3v.1'/%3E%3C/svg%3E");
+    --i-tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+    --i-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.6-3.6'/%3E%3C/svg%3E");
+    --i-pill: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.5 20.5a5 5 0 0 1-7.07-7.07l9-9a5 5 0 0 1 7.07 7.07z'/%3E%3Cpath d='m8.5 8.5 7 7'/%3E%3C/svg%3E");
+    --i-syringe: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m18 2 4 4M17 7l3-3'/%3E%3Cpath d='M19 9 9.5 18.5a2.1 2.1 0 0 1-3 0l-1-1a2.1 2.1 0 0 1 0-3L15 5z'/%3E%3Cpath d='m9 11 2 2M12 8l2 2M6 18l-4 4'/%3E%3C/svg%3E");
+    --i-doc: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z'/%3E%3Cpath d='M14 3v5h5M9 13h6M9 17h4'/%3E%3C/svg%3E");
+    --i-moves: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 4v16M3 8l4-4 4 4M17 20V4M13 16l4 4 4-4'/%3E%3C/svg%3E");
+    --i-help: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6h11M9 12h11M9 18h11'/%3E%3Cpath d='M4 6h.01M4 12h.01M4 18h.01'/%3E%3C/svg%3E");
+  }
+  .r-pharma { --rc: #5f3fd6; --rt: #f0ecfe; --g1: #5f3fd6; --g2: #7a52ea; --hero-bg: linear-gradient(115deg, #f0ecfe 0%, #eef2fe 100%); --ri: var(--i-pill); }
+  .r-cons   { --rc: #0a7fa3; --rt: #e2f4fa; --g1: #0a7fa3; --g2: #1d6fe0; --hero-bg: linear-gradient(115deg, #e2f4fb 0%, #e9f1fe 100%); --ri: var(--i-syringe); }
+  .r-pap    { --rc: #0c7a63; --rt: #e1f4ec; --g1: #0c7a63; --g2: #0b7a97; --hero-bg: linear-gradient(115deg, #e1f5ec 0%, #e4f2fa 100%); --ri: var(--i-doc); }
+  .r-moves, .r-process { --rc: #475569; --rt: #f1f5f9; --g1: #135cc4; --g2: #1d6fe0; --hero-bg: linear-gradient(115deg, #e6f0fe 0%, #f0effb 100%); }
+  .r-moves { --ri: var(--i-moves); } .r-process { --ri: var(--i-help); }
+
+  /* ===== Base ===== */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font: 14px/1.5 var(--font); color: var(--ink); -webkit-font-smoothing: antialiased;
+    background: radial-gradient(1100px 620px at 0% 0%, #dff1fa 0%, rgba(223, 241, 250, 0) 62%),
+                radial-gradient(1000px 640px at 100% 100%, #ece6fd 0%, rgba(236, 230, 253, 0) 58%), var(--bg); background-attachment: fixed; min-height: 100vh; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid rgba(37, 99, 235, .55); outline-offset: 2px; }
+  h1, h2, h3 { margin: 0; line-height: 1.22; color: var(--ink); }
+  h1 { font-size: 20px; font-weight: 760; letter-spacing: -.02em; }
+  h2 { font-size: 26px; font-weight: 760; letter-spacing: -.025em; }
+  h3 { font-size: 16px; font-weight: 700; }
+  p { margin: 0; }
+  .muted { color: var(--ink-3); }
+  .small { font-size: 12.5px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  kbd { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 11px; padding: 1px 6px; border: 1px solid rgba(15, 23, 42, .14); border-bottom-width: 2px; border-radius: 6px; background: #fff; color: var(--ink-2); }
+  .skip { position: absolute; left: 12px; top: -80px; z-index: 30; background: var(--surface); padding: 8px 12px; border-radius: var(--r-sm); }
+  .skip:focus { top: 8px; box-shadow: var(--shadow-pop); }
+
+  /* ===== Coquille ===== */
+  .app { display: grid; grid-template-columns: 112px minmax(0, 1fr); max-width: 1480px; margin: 14px auto; background: var(--surface); border-radius: var(--r-xl);
+    box-shadow: 0 2px 6px rgba(15, 35, 70, .04), 0 28px 70px rgba(15, 35, 70, .10); min-height: calc(100vh - 28px); }
+  .rail { position: sticky; top: 14px; align-self: start; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 22px 10px; }
+  .brand-mark { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px; background: linear-gradient(135deg, #135cc4, #1d6fe0); color: #fff; box-shadow: 0 10px 22px rgba(29, 111, 224, .32); }
+  .brand-mark svg { width: 24px; height: 24px; }
+  .workspace { min-width: 0; display: flex; flex-direction: column; border-left: 1px solid var(--line-2); }
+  .topbar { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; padding: 22px 28px 6px; }
+  .topbar .brand { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .topbar .where { color: var(--ink-3); font-size: 12.5px; }
+  .topbar .spacer { flex: 1; }
+  .demo-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 7px 14px 7px 12px; border-radius: 999px; background: var(--amber-bg); border: 1px solid var(--amber-line); color: #6b4300; font-size: 12.5px; }
+  .demo-banner::before { content: ""; width: 16px; height: 16px; flex: none; background: currentColor; -webkit-mask: var(--i-info) center / contain no-repeat; mask: var(--i-info) center / contain no-repeat; }
+  .demo-banner strong { font-weight: 650; }
+  .demo-banner .pill { border-radius: 999px; padding: 0 8px; font-weight: 650; background: #fff; border: 1px solid var(--amber-line); font-size: 12px; }
+  .topbar .date { font-size: 12.5px; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 7px 14px; font-weight: 600; }
+
+  /* ===== Navigation ===== */
+  .tabs { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .tabs [role=tab] { appearance: none; border: 0; background: none; display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 0; padding: 10px 4px;
+    border-radius: 18px; cursor: pointer; text-align: center; color: var(--ink-2); }
+  .tabs [role=tab]:hover { background: var(--surface-2); }
+  .tabs [role=tab][aria-selected=true] { background: var(--accent-soft); color: var(--ink); }
+  .tabs .k { position: relative; display: block; width: 42px; height: 42px; border-radius: 14px; background: var(--rt); }
+  .tabs .k::after { content: ""; position: absolute; inset: 11px; background: var(--rc); -webkit-mask: var(--ri) center / contain no-repeat; mask: var(--ri) center / contain no-repeat; }
+  .tabs [aria-selected=true] .k { background: linear-gradient(135deg, var(--g1), var(--g2)); box-shadow: 0 8px 18px rgba(15, 35, 70, .2); }
+  .tabs [aria-selected=true] .k::after { background: #fff; }
+  .tabs .t { font-size: 11.5px; font-weight: 650; line-height: 1.22; }
+  .tabs .sep { width: 44px; height: 1px; background: var(--line); margin: 6px auto; }
+
+  /* ===== Mise en page ===== */
+  .layout { padding: 14px 28px 32px; }
+  main { min-width: 0; container-type: inline-size; container-name: main; }
+  #view:focus { outline: none; }
+  #view > * + * { margin-top: 16px; }
+  .row-flex { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .stack > * + * { margin-top: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--line-2); border-radius: var(--r-lg); box-shadow: var(--shadow); }
+  .card > .hd { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; padding: 18px 20px 8px; }
+  .card > .bd { padding: 10px 20px 20px; }
+
+  /* ===== En-tête ===== */
+  .hero { padding: 22px 24px; border-radius: 24px; background: var(--hero-bg); border: 1px solid rgba(15, 23, 42, .04); }
+  .hero h2 { display: flex; align-items: center; gap: 14px; }
+  .hk { position: relative; flex: none; width: 46px; height: 46px; border-radius: 15px; background: linear-gradient(135deg, var(--g1), var(--g2)); box-shadow: 0 10px 22px rgba(15, 35, 70, .18); }
+  .hk::after { content: ""; position: absolute; inset: 12px; background: #fff; -webkit-mask: var(--ri) center / contain no-repeat; mask: var(--ri) center / contain no-repeat; }
+  .lead { color: var(--ink-2); max-width: 82ch; margin-top: 10px; font-size: 14.5px; }
+  .how { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 14px 0 0; padding: 0; }
+  .how li { display: flex; align-items: center; gap: 8px; padding: 5px 14px 5px 5px; border-radius: 999px; background: rgba(255, 255, 255, .85); border: 1px solid rgba(15, 23, 42, .06); font-size: 13px; color: var(--ink-2); }
+  .how li b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; font-size: 12.5px; }
+
+  /* ===== Barre d'outils (collante) ===== */
+  .toolbar { position: sticky; top: 0; z-index: 6; background: rgba(255, 255, 255, .95); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    padding: 12px 0 10px; border-bottom: 1px solid var(--line-2); }
+  .toolbar > * + * { margin-top: 10px; }
+  .filter { position: relative; flex: 1 1 320px; min-width: 0; }
+  .filter::before { content: ""; position: absolute; left: 15px; top: 50%; width: 18px; height: 18px; margin-top: -9px; background: var(--ink-3); -webkit-mask: var(--i-search) center / contain no-repeat; mask: var(--i-search) center / contain no-repeat; pointer-events: none; }
+  .filter input[type=search] { padding-left: 44px; height: 46px; border-radius: 14px; font-size: 15px; }
+  .secnav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+  .secnav a { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 5px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); text-decoration: none; font-size: 12.5px; font-weight: 600; min-height: 34px; }
+  .secnav a:hover { border-color: var(--field-hover); color: var(--ink); }
+  .tag { display: inline-grid; place-items: center; min-width: 26px; height: 24px; padding: 0 6px; border-radius: 8px; background: var(--rt); color: var(--rc); font-size: 12px; font-weight: 760; }
+
+  /* ===== Liste ===== */
+  .list { overflow: hidden; }
+  .sec { scroll-margin-top: 150px; }
+  .sec-h { display: flex; align-items: center; gap: 10px; padding: 11px 20px; background: var(--surface-2); border-top: 1px solid var(--line-2); border-bottom: 1px solid var(--line-2); font-size: 13.5px; font-weight: 700; color: var(--ink-2); }
+  .sec:first-child .sec-h { border-top: 0; }
+  .sec-h .tag { background: linear-gradient(135deg, var(--g1), var(--g2)); color: #fff; }
+  .sec-h .n { margin-left: auto; font-weight: 500; color: var(--ink-3); font-size: 12.5px; }
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .item { display: grid; grid-template-columns: minmax(0, 1fr) minmax(150px, 220px) auto; gap: 8px 18px; align-items: center; padding: 11px 20px; border-top: 1px solid var(--line-2); }
+  .rows .item:first-child { border-top: 0; }
+  .item:hover { background: #fafcff; }
+  .item.open { background: var(--surface-2); }
+  .item.flash { animation: flash 1.8s ease-out; }
+  @keyframes flash { from { background: #d9f7e7; } to { background: transparent; } }
+  .nm { font-weight: 680; font-size: 14.5px; line-height: 1.3; }
+  .fm { font-size: 12.5px; color: var(--ink-3); }
+  .st { font-variant-numeric: tabular-nums; line-height: 1.25; }
+  .st b { font-size: 18px; font-weight: 760; }
+  .st .u { color: var(--ink-3); font-size: 12.5px; margin-left: 4px; }
+  .st .zero { color: var(--ink-3); }
+  .st .ex { display: block; font-size: 12px; margin-top: 3px; color: var(--ink-3); }
+  .act { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn.in { color: var(--green); background: var(--green-bg); border-color: var(--green-line); }
+  .btn.in:hover { background: #d6f3e4; border-color: #8fd6b1; }
+  .btn.out { color: var(--out); background: var(--out-bg); border-color: var(--out-line); }
+  .btn.out:hover { background: #ffedd5; border-color: #fdba74; }
+  .btn.in[aria-expanded=true] { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn.out[aria-expanded=true] { background: var(--out); color: #fff; border-color: var(--out); }
+  .empty { padding: 22px 20px; color: var(--ink-3); }
+
+  /* ===== Panneau d'entrée / de sortie (dans la ligne) ===== */
+  .panel { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px 16px; align-items: start; margin-top: 4px; padding: 16px; border-radius: 16px;
+    background: var(--surface); border: 1.5px solid var(--green-line); box-shadow: var(--shadow); }
+  .panel.p-out { border-color: var(--out-line); }
+  .panel .p-title { grid-column: 1 / -1; font-weight: 720; font-size: 14px; }
+  .panel .p-note { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink-2); }
+  .panel .p-act { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .btn.go-in { background: linear-gradient(135deg, #0f7a4d, #16915e); color: #fff; border: 0; }
+  .btn.go-out { background: linear-gradient(135deg, #9a3412, #b4441b); color: #fff; border: 0; }
+  .btn.go-in:hover, .btn.go-out:hover { filter: brightness(1.07); }
+
+  /* ===== Formulaires ===== */
+  .f { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 650; color: var(--ink-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+  .f > label, .f > legend { display: block; padding: 0; }
+  .hint { font-size: 12.5px; color: var(--ink-3); font-weight: 400; }
+  .err-msg { display: flex; align-items: flex-start; gap: 6px; font-size: 12.5px; font-weight: 650; color: var(--red); }
+  .err-msg::before { content: ""; flex: none; width: 15px; height: 15px; margin-top: 1px; background: currentColor; -webkit-mask: var(--i-error) center / contain no-repeat; mask: var(--i-error) center / contain no-repeat; }
+  input[type=text], input[type=search], select { height: 44px; padding: 0 12px; border: 1px solid var(--field); border-radius: 12px; background: var(--surface); min-width: 0; width: 100%; color: var(--ink); }
+  input:hover, select:hover { border-color: var(--field-hover); }
+  input:focus, select:focus { outline: 2px solid transparent; border-color: var(--focus); box-shadow: var(--ring); }
+  input::placeholder { color: #8b98aa; }
+  input[aria-invalid=true] { border-color: var(--red-solid); background: #fffafa; box-shadow: 0 0 0 4px rgba(229, 72, 77, .12); }
+  input.big { font-size: 17px; font-weight: 650; }
+  .motifs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .motifs label { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 12px; border: 1px solid var(--field); border-radius: 12px; cursor: pointer; font-weight: 600; background: var(--surface); }
+  .motifs label:has(input:checked) { border-color: var(--out); background: var(--out-bg); color: var(--out); }
+  .motifs input, .radios input { width: 18px; height: 18px; margin: 0; accent-color: var(--out); }
+  .radios { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .radios label { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; cursor: pointer; }
+  .radios input { accent-color: var(--accent); }
+
+  /* ===== Boutons ===== */
+  .btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--field);
+    background: var(--surface); cursor: pointer; font-weight: 650; white-space: nowrap; color: var(--ink); box-shadow: var(--shadow-sm); text-decoration: none; }
+  .btn:hover { background: var(--surface-2); border-color: var(--field-hover); }
+  .btn.sm { height: 36px; padding: 0 12px; font-size: 13px; border-radius: 10px; box-shadow: none; }
+  .btn.ghost { border-color: transparent; background: none; color: var(--accent); box-shadow: none; padding: 0 10px; }
+  .btn.ghost:hover { background: var(--accent-soft); }
+  .btn.primary { background: linear-gradient(135deg, #135cc4, #1d6fe0); color: #fff; border: 0; }
+  .btn.watch[aria-pressed=true] { background: var(--amber-bg); border-color: var(--amber-solid); color: var(--amber); }
+
+  /* ===== Statuts ===== */
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; border-radius: 999px; font-size: 12px; font-weight: 650; line-height: 22px; white-space: nowrap; border: 1px solid transparent; }
+  .b-expired { background: var(--red-bg); color: var(--red); border-color: var(--red-line); }
+  .b-soon, .b-demo { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-line); }
+  .b-in { background: var(--green-bg); color: var(--green); border-color: var(--green-line); }
+  .b-out { background: var(--out-bg); color: var(--out); border-color: var(--out-line); }
+  .kpis { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .kpi { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 12px; border-radius: 12px; background: rgba(255, 255, 255, .85); border: 1px solid rgba(15, 23, 42, .06); font-size: 12.5px; color: var(--ink-2); }
+  .kpi b { font-size: 16px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .kpi.warn b { color: var(--amber); } .kpi.err b { color: var(--red); }
+
+  /* ===== Tableaux ===== */
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line-2); vertical-align: middle; }
+  thead th { font-size: 12.5px; font-weight: 650; color: var(--ink-3); white-space: nowrap; border-bottom-color: var(--line); }
+  tbody tr:last-child > td { border-bottom: 0; }
+  .table-wrap { position: relative; overflow-x: auto; }
+  @container main (max-width: 640px) {
+    .flat thead { display: none; }
+    .flat, .flat tbody, .flat tr, .flat td { display: block; }
+    .flat tr { padding: 12px 16px; border-bottom: 1px solid var(--line-2); }
+    .flat td { padding: 2px 0; border: 0; text-align: left; }
+    .flat td[data-l]::before { content: attr(data-l) " : "; color: var(--ink-3); font-size: 12.5px; font-weight: 400; }
+  }
+
+  /* ===== Page « Le process » ===== */
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .addgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .steps3 { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  .steps3 li { position: relative; padding: 4px 0 12px 42px; counter-increment: s; }
+  .steps3 li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-weight: 760; font-size: 13px; background: var(--sc); }
+  .c-in { --sc: linear-gradient(135deg, #0f7a4d, #16915e); }
+  .c-out { --sc: linear-gradient(135deg, #9a3412, #b4441b); }
+  .c-in > .hd h3 { color: var(--green); } .c-out > .hd h3 { color: var(--out); }
+  .bul { margin: 0; padding-left: 18px; color: var(--ink-2); }
+  .bul li + li { margin-top: 6px; }
+  ol.q { margin: 0; padding-left: 22px; color: var(--ink-2); }
+  ol.q li + li { margin-top: 7px; }
+  ol.q li::marker { color: var(--accent); font-weight: 700; }
+  .gear { display: flex; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding: 12px 0; border-top: 1px solid var(--line-2); }
+  .gear:first-child { border-top: 0; padding-top: 0; }
+  .gear b { white-space: nowrap; }
+
+  /* ===== Notification ===== */
+  .toast { position: fixed; right: 26px; bottom: 26px; display: none; align-items: center; gap: 12px; background: var(--surface); color: var(--ink); border: 1px solid var(--line-2);
+    padding: 12px 14px 12px 56px; border-radius: 18px; font-size: 13.5px; font-weight: 600; box-shadow: var(--shadow-pop); max-width: min(92vw, 500px); z-index: 20; }
+  .toast::before { content: ""; position: absolute; left: 14px; top: 50%; margin-top: -15px; width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #0f8a57, #22a06b); }
+  .toast::after { content: ""; position: absolute; left: 22px; top: 50%; margin-top: -7px; width: 14px; height: 14px; background: #fff; -webkit-mask: var(--i-tick) center / contain no-repeat; mask: var(--i-tick) center / contain no-repeat; }
+  .toast.on { display: flex; }
+  .toast .tx { flex: 1; }
+  .toast small { display: block; color: var(--ink-3); font-size: 12px; font-weight: 400; margin-top: 2px; }
+
+  /* ===== Petits écrans ===== */
+  @container main (max-width: 700px) {
+    .item { grid-template-columns: minmax(0, 1fr) auto; padding: 12px 14px; }
+    .act { grid-column: 1 / -1; }
+    .act .btn { flex: 1; }
+    .st { text-align: right; }
+    .sec-h { padding: 10px 14px; }
+  }
+  @media (max-width: 760px) {
+    body { background: var(--surface); }
+    .app { display: block; margin: 0; border-radius: 0; box-shadow: none; }
+    .rail { position: static; display: block; padding: 10px 14px; border-bottom: 1px solid var(--line-2); }
+    .brand-mark { display: none; }
+    .workspace { border-left: 0; }
+    .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .tabs [role=tab] { gap: 4px; padding: 8px 4px; border: 1px solid var(--line); border-radius: 14px; }
+    .tabs .k { width: 32px; height: 32px; border-radius: 10px; }
+    .tabs .k::after { inset: 8px; }
+    .tabs .t { font-size: 12px; }
+    .tabs .sep { display: none; }
+    .topbar { padding: 12px 14px 4px; }
+    .topbar h1 { font-size: 18px; }
+    .layout { padding: 10px 14px 24px; }
+    h2 { font-size: 22px; }
+    .hero { padding: 16px; border-radius: 20px; }
+    .hk { width: 40px; height: 40px; }
+    .card > .hd { padding: 14px 14px 6px; }
+    .card > .bd { padding: 10px 14px 14px; }
+    .toast { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+  }
+  @media (max-width: 760px), (pointer: coarse) {
+    .btn, .btn.sm { min-height: 44px; }
+    input[type=text], input[type=search], select { font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .item.flash { animation: none; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#view">Aller au contenu</a>
+<div class="app">
+<nav class="rail" aria-label="Réserves">
+  <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></svg></span>
+  <div class="tabs" role="tablist" aria-label="Écrans" aria-orientation="vertical">
+    <button type="button" role="tab" id="tab-pharma" class="r-pharma" data-act="tab" data-v="pharma" aria-controls="view"><span class="k" aria-hidden="true"></span><span class="t">Pharmacie</span></button>
+    <button type="button" role="tab" id="tab-cons" class="r-cons" data-act="tab" data-v="cons" aria-controls="view"><span class="k" aria-hidden="true"></span><span class="t">Consommables</span></button>
+    <button type="button" role="tab" id="tab-pap" class="r-pap" data-act="tab" data-v="pap" aria-controls="view"><span class="k" aria-hidden="true"></span><span class="t">Papeterie</span></button>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" role="tab" id="tab-moves" class="r-moves" data-act="tab" data-v="moves" aria-controls="view"><span class="k" aria-hidden="true"></span><span class="t">Mouvements</span></button>
+    <button type="button" role="tab" id="tab-process" class="r-process" data-act="tab" data-v="process" aria-controls="view"><span class="k" aria-hidden="true"></span><span class="t">Le process</span></button>
+  </div>
+</nav>
+<div class="workspace">
+<header class="topbar">
+  <div class="brand"><h1>CLMO · Stock des réserves</h1><span class="where">Réserves centrales · phase 1 · ce qui entre, ce qui sort</span></div>
+  <span class="spacer"></span>
+  <div class="demo-banner" role="note"><strong>Maquette de discussion — rien n’est enregistré</strong><span class="pill">Données fictives</span></div>
+  <span class="date" id="today"></span>
+</header>
+<div class="layout"><main><div id="view" role="tabpanel" tabindex="-1"></div></main></div>
+</div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Réserves et articles (fictifs : quantités et dates inventées) ---------- */
+  var ROOMS = {
+    pharma: { name: "Pharmacie", exp: true },
+    cons:   { name: "Consommables", exp: true },
+    pap:    { name: "Papeterie", exp: false }
+  };
+  var ROOM_IDS = ["pharma", "cons", "pap"];
+  // [désignation, format, unité de comptage, péremption ? (sinon : réglage de la pièce)]
+  var CAT = {
+    pharma: [
+      ["A", "Antalgiques, anti-inflammatoires", [
+        ["Paracétamol 500 mg", "boîte de 16 comprimés", "boîte"], ["Paracétamol 1 g", "boîte de 8 comprimés", "boîte"], ["Paracétamol 2,4 % sirop", "flacon 100 ml", "flacon"],
+        ["Ibuprofène 200 mg", "boîte de 20 comprimés", "boîte"], ["Ibuprofène 400 mg", "boîte de 12 comprimés", "boîte"], ["Ibuprofène 20 mg/ml sirop", "flacon 150 ml", "flacon"],
+        ["Kétoprofène 100 mg", "boîte de 30 gélules", "boîte"], ["Tramadol 50 mg", "boîte de 30 gélules", "boîte"], ["Paracétamol codéine 500/30 mg", "boîte de 16 comprimés", "boîte"],
+        ["Aspirine 500 mg", "boîte de 20 comprimés", "boîte"], ["Diclofénac 1 % gel", "tube 50 g", "tube"], ["Néfopam 20 mg/2 ml", "boîte de 5 ampoules", "boîte"]]],
+      ["B", "Antibiotiques", [
+        ["Amoxicilline 500 mg", "boîte de 12 gélules", "boîte"], ["Amoxicilline 1 g", "boîte de 6 comprimés", "boîte"], ["Amoxicilline 250 mg/5 ml", "flacon 60 ml", "flacon"],
+        ["Amoxicilline acide clavulanique 1 g", "boîte de 8 sachets", "boîte"], ["Azithromycine 250 mg", "boîte de 6 comprimés", "boîte"], ["Pristinamycine 500 mg", "boîte de 16 comprimés", "boîte"],
+        ["Doxycycline 100 mg", "boîte de 15 comprimés", "boîte"], ["Fosfomycine 3 g", "1 sachet", "sachet"], ["Ciprofloxacine 500 mg", "boîte de 10 comprimés", "boîte"],
+        ["Cotrimoxazole 800/160 mg", "boîte de 10 comprimés", "boîte"], ["Métronidazole 500 mg", "boîte de 14 comprimés", "boîte"], ["Céfixime 200 mg", "boîte de 8 comprimés", "boîte"]]],
+      ["C", "Cardio, tension", [
+        ["Amlodipine 5 mg", "boîte de 30 comprimés", "boîte"], ["Ramipril 5 mg", "boîte de 30 comprimés", "boîte"], ["Bisoprolol 5 mg", "boîte de 30 comprimés", "boîte"],
+        ["Furosémide 40 mg", "boîte de 30 comprimés", "boîte"], ["Atorvastatine 20 mg", "boîte de 30 comprimés", "boîte"], ["Losartan 50 mg", "boîte de 30 comprimés", "boîte"],
+        ["Aspirine 75 mg", "boîte de 30 sachets", "boîte"], ["Trinitrine 0,30 mg spray", "flacon", "flacon"], ["Hydrochlorothiazide 25 mg", "boîte de 30 comprimés", "boîte"]]],
+      ["D", "Digestif", [
+        ["Phloroglucinol 80 mg", "boîte de 10 comprimés", "boîte"], ["Oméprazole 20 mg", "boîte de 14 gélules", "boîte"], ["Ésoméprazole 20 mg", "boîte de 14 comprimés", "boîte"],
+        ["Métoclopramide 10 mg", "boîte de 40 comprimés", "boîte"], ["Ondansétron 4 mg", "boîte de 4 comprimés", "boîte"], ["Lopéramide 2 mg", "boîte de 20 gélules", "boîte"],
+        ["Racécadotril 100 mg", "boîte de 20 gélules", "boîte"], ["Diosmectite 3 g", "boîte de 30 sachets", "boîte"], ["Macrogol 10 g", "boîte de 20 sachets", "boîte"],
+        ["Soluté de réhydratation orale", "boîte de 10 sachets", "boîte"]]],
+      ["E", "ORL, respiratoire, allergie", [
+        ["Salbutamol 100 µg", "aérosol 200 doses", "aérosol"], ["Budésonide 200 µg", "inhalateur", "inhalateur"], ["Prednisolone 20 mg", "boîte de 20 comprimés", "boîte"],
+        ["Prednisolone 5 mg", "boîte de 30 comprimés", "boîte"], ["Bétaméthasone 0,05 % buvable", "flacon 30 ml", "flacon"], ["Desloratadine 5 mg", "boîte de 30 comprimés", "boîte"],
+        ["Cétirizine 10 mg", "boîte de 15 comprimés", "boîte"], ["Sérum physiologique", "boîte de 40 unidoses 5 ml", "boîte"], ["Dextrométhorphane sirop", "flacon 125 ml", "flacon"]]],
+      ["F", "Peau, antiseptiques", [
+        ["Chlorhexidine 0,5 %", "flacon 250 ml", "flacon"], ["Povidone iodée 10 %", "flacon 125 ml", "flacon"], ["Éosine 2 %", "boîte de 10 unidoses", "boîte"],
+        ["Acide fusidique 2 % crème", "tube 15 g", "tube"], ["Sulfadiazine argentique 1 %", "tube 50 g", "tube"], ["Hydrocortisone 1 % crème", "tube 15 g", "tube"],
+        ["Aciclovir 5 % crème", "tube 2 g", "tube"], ["Miconazole 2 % crème", "tube 30 g", "tube"], ["Lidocaïne prilocaïne 5 % crème", "tube 5 g", "tube"]]],
+      ["G", "Urgence, injectables", [
+        ["Adrénaline 1 mg/ml", "boîte de 10 ampoules", "boîte"], ["Adrénaline auto-injecteur 0,3 mg", "1 stylo", "stylo"], ["Hydrocortisone 100 mg injectable", "1 flacon", "flacon"],
+        ["Méthylprednisolone 40 mg injectable", "1 flacon", "flacon"], ["Glucose 30 %", "boîte de 10 ampoules 10 ml", "boîte"], ["Glucagon 1 mg", "1 kit", "kit"],
+        ["Ceftriaxone 1 g", "1 flacon", "flacon"], ["Furosémide 20 mg/2 ml", "boîte de 5 ampoules", "boîte"], ["Lidocaïne 1 %", "boîte de 10 ampoules 10 ml", "boîte"],
+        ["Chlorure de sodium 0,9 %", "poche 500 ml", "poche"], ["Eau pour préparation injectable", "boîte de 10 ampoules 10 ml", "boîte"], ["Salbutamol 5 mg/2,5 ml nébulisation", "boîte de 20 unidoses", "boîte"]]],
+      ["H", "Yeux, bouche, vitamines, divers", [
+        ["Collyre antiseptique", "flacon 10 ml", "flacon"], ["Larmes artificielles", "boîte de 30 unidoses", "boîte"], ["Fluorescéine collyre", "boîte de 10 unidoses", "boîte"],
+        ["Oxybuprocaïne collyre", "boîte de 10 unidoses", "boîte"], ["Bain de bouche chlorhexidine", "flacon 300 ml", "flacon"], ["Lidocaïne visqueuse 2 %", "flacon 100 ml", "flacon"],
+        ["Vitamine K1 10 mg", "boîte de 5 ampoules", "boîte"], ["Fer 80 mg", "boîte de 30 comprimés", "boîte"], ["Acide folique 5 mg", "boîte de 20 comprimés", "boîte"],
+        ["Vitamine D 100 000 UI", "1 ampoule buvable", "ampoule"], ["Magnésium vitamine B6", "boîte de 50 comprimés", "boîte"], ["Hydroxyzine 25 mg", "boîte de 30 comprimés", "boîte"],
+        ["Lévonorgestrel 1,5 mg", "boîte de 1 comprimé", "boîte"], ["Test de grossesse urinaire", "à l’unité", "unité"], ["Charbon activé 50 g", "flacon", "flacon"]]],
+      ["FR", "Frigo : vaccins, produits au froid", [
+        ["Vaccin A (fictif)", "dose 0,5 ml", "dose"], ["Vaccin B (fictif)", "dose 0,5 ml", "dose"], ["Vaccin grippe saisonnière", "seringue 0,5 ml", "dose"],
+        ["Vaccin diphtérie-tétanos-polio-coqueluche", "seringue 0,5 ml", "dose"], ["Vaccin rougeole-oreillons-rubéole", "1 dose", "dose"], ["Vaccin hépatite B", "seringue 1 ml", "dose"],
+        ["Vaccin pneumocoque", "seringue 0,5 ml", "dose"], ["Vaccin méningocoque", "1 dose", "dose"], ["Vaccin papillomavirus", "seringue 0,5 ml", "dose"],
+        ["Vaccin tétanos", "seringue 0,5 ml", "dose"], ["Insuline rapide 100 UI/ml", "flacon 10 ml", "flacon"], ["Tuberculine (test)", "flacon 1 ml", "flacon"]]]
+    ],
+    cons: [
+      ["A", "Injection, perfusion", [
+        ["Seringue 2 ml", "boîte de 100", "boîte"], ["Seringue 5 ml", "boîte de 100", "boîte"], ["Seringue 10 ml", "boîte de 100", "boîte"], ["Seringue 20 ml", "boîte de 50", "boîte"],
+        ["Aiguille 21 G", "boîte de 100", "boîte"], ["Aiguille 23 G", "boîte de 100", "boîte"], ["Aiguille 25 G", "boîte de 100", "boîte"],
+        ["Cathéter court 20 G", "boîte de 50", "boîte"], ["Cathéter court 22 G", "boîte de 50", "boîte"], ["Perfuseur", "boîte de 50", "boîte"]]],
+      ["B", "Pansements", [
+        ["Compresses stériles 7,5 × 7,5 cm", "boîte de 50 sachets", "boîte"], ["Compresses stériles 10 × 10 cm", "boîte de 50 sachets", "boîte"],
+        ["Compresses non stériles 10 × 10 cm", "paquet de 100", "paquet", false], ["Sparadrap 2,5 cm", "rouleau 5 m", "rouleau", false], ["Bande extensible 10 cm", "boîte de 20", "boîte", false],
+        ["Pansements adhésifs assortis", "boîte de 100", "boîte"], ["Film transparent 6 × 7 cm", "boîte de 100", "boîte"], ["Sutures cutanées adhésives", "boîte de 50", "boîte"]]],
+      ["C", "Protection", [
+        ["Gants nitrile taille S", "boîte de 100", "boîte", false], ["Gants nitrile taille M", "boîte de 100", "boîte", false], ["Gants nitrile taille L", "boîte de 100", "boîte", false],
+        ["Masques chirurgicaux", "boîte de 50", "boîte"], ["Masques FFP2", "boîte de 20", "boîte"], ["Surblouses", "paquet de 10", "paquet", false], ["Gants stériles 7,5", "boîte de 50 paires", "boîte"]]],
+      ["D", "Soins, examens", [
+        ["Solution hydroalcoolique", "flacon 500 ml", "flacon"], ["Alcool 70 %", "flacon 250 ml", "flacon"], ["Bandelettes glycémie", "boîte de 50", "boîte"], ["Lancettes", "boîte de 200", "boîte"],
+        ["Abaisse-langue", "boîte de 100", "boîte", false], ["Embouts de thermomètre", "boîte de 200", "boîte", false], ["Draps d’examen", "rouleau de 150 feuilles", "rouleau", false]]],
+      ["E", "Déchets", [
+        ["Collecteur aiguilles 1,5 l", "à l’unité", "unité", false], ["Collecteur aiguilles 3 l", "à l’unité", "unité", false], ["Sacs déchets de soins 50 l", "rouleau de 25", "rouleau", false]]]
+    ],
+    pap: [
+      ["A", "Papier, enveloppes", [
+        ["Ramette papier A4 80 g", "500 feuilles", "ramette"], ["Ramette papier A3 80 g", "500 feuilles", "ramette"], ["Enveloppes C5", "boîte de 500", "boîte"],
+        ["Enveloppes C4 kraft", "boîte de 250", "boîte"], ["Notes adhésives 76 × 76", "paquet de 12 blocs", "paquet"]]],
+      ["B", "Écriture", [
+        ["Stylos bille bleu", "boîte de 50", "boîte"], ["Stylos bille noir", "boîte de 50", "boîte"], ["Surligneurs assortis", "pochette de 4", "pochette"], ["Marqueurs permanents", "boîte de 10", "boîte"]]],
+      ["C", "Classement", [
+        ["Chemises cartonnées A4", "paquet de 100", "paquet"], ["Classeurs à levier", "à l’unité", "unité"], ["Pochettes perforées", "paquet de 100", "paquet"], ["Intercalaires A4", "paquet de 12", "paquet"]]],
+      ["D", "Bureau, impression", [
+        ["Étiquettes adhésives A4", "boîte de 100 feuilles", "boîte"], ["Agrafes 24/6", "boîte de 1000", "boîte"], ["Trombones", "boîte de 100", "boîte"], ["Cartouche d’encre imprimante", "à l’unité", "unité"]]]
+    ]
+  };
+  var SECTIONS = {}, ART = [], uid = 0;
+  function nid(p) { uid += 1; return p + uid; }
+  ROOM_IDS.forEach(function (r) {
+    SECTIONS[r] = [];
+    CAT[r].forEach(function (s) {
+      SECTIONS[r].push({ id: s[0], name: s[1] });
+      s[2].forEach(function (x) { ART.push({ id: nid("a"), room: r, sec: s[0], name: x[0], format: x[1], unit: x[2], exp: x[3] === undefined ? ROOMS[r].exp : x[3] }); });
+    });
+  });
+
+  /* ---------- Dates ---------- */
+  var TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function parseISO(s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(s || "")) return null; var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function daysUntil(s) { var d = parseISO(s); return d ? Math.round((d - TODAY) / 86400000) : null; }
+  function monthEnd(n) { return iso(new Date(TODAY.getFullYear(), TODAY.getMonth() + n + 1, 0)); }
+  function inMonths(n) { var d = new Date(TODAY.getFullYear(), TODAY.getMonth() + n, 1); return pad(d.getMonth() + 1) + "/" + d.getFullYear(); }
+  function fr(s) { var p = s.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
+  function expTxt(l) { if (!l.exp) return ""; var p = l.exp.split("-"); return l.mo ? p[1] + "/" + p[0] : fr(l.exp); }
+  function now() { var d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  var TODAY_ISO = iso(TODAY);
+  var ALERT_MONTHS = { pharma: 3, cons: 3, pap: 0 }; // proposition à valider
+
+  // Péremption au mois près (« 06/2027 », « 6/27 ») ou date complète (« 30/06/2027 »).
+  function parseExp(v) {
+    v = String(v == null ? "" : v).trim();
+    if (!v) return { err: "missing" };
+    var m, d = null, mo, y;
+    if ((m = /^(\d{1,2})\s*[\/.\- ]\s*(\d{2}|\d{4})$/.exec(v))) { mo = +m[1]; y = +m[2]; }
+    else if ((m = /^(\d{1,2})\s*[\/.\-]\s*(\d{1,2})\s*[\/.\-]\s*(\d{2}|\d{4})$/.exec(v))) { d = +m[1]; mo = +m[2]; y = +m[3]; }
+    else return { err: "format" };
+    if (y < 100) y += 2000;
+    if (mo < 1 || mo > 12 || y < 2000 || y > 2099) return { err: "format" };
+    var last = new Date(y, mo, 0).getDate(), month = d === null;
+    if (month) d = last; else if (d < 1 || d > last) return { err: "format" };
+    return { iso: y + "-" + pad(mo) + "-" + pad(d), mo: month };
+  }
+  function qtyErr(v) {
+    v = String(v == null ? "" : v).trim();
+    if (!v) return "Quantité à saisir.";
+    if (!/^\d+$/.test(v)) return "Nombre entier attendu.";
+    if (+v < 1) return "Au moins 1.";
+    if (+v > 99999) return "Quantité trop grande : vérifiez le chiffre.";
+    return "";
+  }
+
+  /* ---------- Stock de départ (lots = une quantité par date de péremption) ---------- */
+  var lots = [], moves = [];
+  function addLot(a, qty, exp) { lots.push({ id: nid("l"), aid: a.id, qty: qty, exp: exp || null, mo: !!exp }); }
+  (function seed() {
+    var s = 20261108;
+    function rnd() { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; }
+    ART.forEach(function (a) {
+      var r = rnd(), big = /^(unité|ramette|dose)$/.test(a.unit) ? 3 : 1;
+      if (a.name === "Vaccin A (fictif)") return addLot(a, 20, monthEnd(7));
+      if (a.name === "Paracétamol 500 mg") { addLot(a, 6, monthEnd(1)); return addLot(a, 30, monthEnd(15)); }
+      if (a.name === "Ibuprofène 20 mg/ml sirop") { addLot(a, 2, monthEnd(-2)); return addLot(a, 5, monthEnd(11)); }
+      if (r < 0.07) return; // en rupture
+      var q = (2 + Math.floor(rnd() * 22)) * big;
+      if (!a.exp) return addLot(a, q, null);
+      addLot(a, q, monthEnd(5 + Math.floor(rnd() * 26)));
+      if (rnd() < 0.1) addLot(a, 1 + Math.floor(rnd() * 6), monthEnd(1 + Math.floor(rnd() * 2)));
+    });
+  })();
+
+  /* ---------- État ---------- */
+  var S = { view: "pharma", q: "", watch: false, open: null, flash: null, add: null };
+
+  /* ---------- Outils ---------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function $(sel) { return document.querySelector(sel); }
+  function art(id) { for (var i = 0; i < ART.length; i++) if (ART[i].id === id) return ART[i]; return null; }
+  function lot(id) { for (var i = 0; i < lots.length; i++) if (lots[i].id === id) return lots[i]; return null; }
+  function byExp(x, y) { if (!x.exp) return 1; if (!y.exp) return -1; return x.exp < y.exp ? -1 : x.exp > y.exp ? 1 : 0; }
+  function live(a) { return lots.filter(function (l) { return l.aid === a.id && l.qty > 0; }).sort(byExp); }
+  function stockOf(a) { return live(a).reduce(function (s, l) { return s + l.qty; }, 0); }
+  function units(a, n) { return n > 1 && !/[sx]$/.test(a.unit) ? a.unit + "s" : a.unit; }
+  function norm(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  function matches(a, q) { var t = norm(q).split(/\s+/).filter(Boolean), h = norm(a.name + " " + a.format); return t.every(function (x) { return h.indexOf(x) >= 0; }); }
+  function status(a) {
+    var L = live(a).filter(function (l) { return l.exp; });
+    if (!L.length) return { s: a.exp ? "empty" : "none" };
+    var old = L.filter(function (l) { return daysUntil(l.exp) < 0; });
+    if (old.length) return { s: "expired", n: old.reduce(function (s, l) { return s + l.qty; }, 0) };
+    var m = ALERT_MONTHS[a.room], first = L[0], lim = new Date(TODAY); lim.setMonth(lim.getMonth() + m);
+    return { s: m && parseISO(first.exp) <= lim ? "soon" : "ok", l: first };
+  }
+  function watched(a) { var s = status(a).s; return s === "expired" || s === "soon"; }
+  var toastTimer = null;
+  function toast(html, undoable) {
+    var t = $("#toast");
+    t.innerHTML = '<span class="tx">' + html + '</span>' + (undoable ? '<button type="button" class="btn sm" data-act="undo">Annuler</button>' : "");
+    t.classList.add("on"); clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("on"); }, undoable ? 7000 : 3500);
+  }
+
+  /* ---------- Écran d'une réserve : la liste, rangée comme les étagères ---------- */
+  function statusHTML(a) {
+    var st = status(a);
+    if (st.s === "expired") return '<span class="badge b-expired">Périmé : ' + st.n + ' à sortir</span>';
+    if (st.s === "soon") return '<span class="badge b-soon">Proche · ' + expTxt(st.l) + ' (' + st.l.qty + ')</span>';
+    if (st.s === "ok") return "1re péremption " + expTxt(st.l);
+    if (st.s === "none") return "Sans péremption";
+    return "";
+  }
+  function field(id, lbl, hint, val, err, bind, mode, ph) {
+    return '<div class="f"><label for="' + id + '">' + lbl + ' <span class="hint">' + hint + '</span></label><input type="text" class="big" id="' + id + '" data-bind="' + bind + '" value="' + esc(val || "") + '"' +
+      (mode ? ' inputmode="' + mode + '"' : "") + ' placeholder="' + esc(ph) + '" autocomplete="off"' + (err ? ' aria-invalid="true" aria-describedby="' + id + '-e"' : "") + '>' +
+      (err ? '<span class="err-msg" id="' + id + '-e">' + esc(err) + '</span>' : "") + '</div>';
+  }
+  function panelHTML(a) {
+    var o = S.open, e = o.err || {}, n = stockOf(a), id = "p-" + a.id;
+    if (o.mode === "in") {
+      return '<form class="panel" data-form="in" novalidate aria-label="Entrée en stock : ' + esc(a.name) + '"><p class="p-title">Entrée en stock : ' + esc(a.name) + ' <span class="hint">· ' + esc(a.format) + '</span></p>' +
+        field(id + "-qty", "Quantité reçue", "en " + units(a, 2), o.qty, e.qty, "qty", "numeric", "ex. 100") +
+        (a.exp ? field(id + "-exp", "Péremption", "mois/année, lue sur l’emballage", o.exp, e.exp, "exp", "", "ex. " + inMonths(8))
+               : '<p class="p-note">Article sans date de péremption : seule la quantité compte.</p>') +
+        (a.exp ? '<p class="p-note">Plusieurs dates dans le carton ? Une entrée par date.</p>' : "") +
+        '<div class="p-act"><button type="submit" class="btn go-in">Valider l’entrée</button><button type="button" class="btn ghost" data-act="close">Fermer <kbd>Échap</kbd></button></div></form>';
+    }
+    var first = live(a).filter(function (l) { return l.exp; })[0];
+    var motifs = [["use", "Utilisé"], ["exp", "Périmé"], ["lost", "Perdu, cassé"]];
+    return '<form class="panel p-out" data-form="out" novalidate aria-label="Sortie de stock : ' + esc(a.name) + '"><p class="p-title">Sortie de stock : ' + esc(a.name) + ' <span class="hint">· ' + n + ' ' + units(a, n) + ' en stock</span></p>' +
+      field(id + "-qty", "Quantité sortie", "en " + units(a, 2), o.qty, e.qty, "qty", "numeric", "ex. 5") +
+      '<fieldset class="f"><legend>Motif</legend><div class="motifs">' + motifs.map(function (m) {
+        return '<label><input type="radio" name="motif" value="' + m[0] + '" data-act="motif"' + (o.motif === m[0] ? " checked" : "") + '> ' + m[1] + '</label>';
+      }).join("") + '</div></fieldset>' +
+      (first ? '<p class="p-note">Sortent en premier les ' + units(a, 2) + ' qui périment le plus tôt (' + expTxt(first) + '), comme sur l’étagère.</p>' : "") +
+      '<div class="p-act"><button type="submit" class="btn go-out">Valider la sortie</button><button type="button" class="btn ghost" data-act="close">Fermer <kbd>Échap</kbd></button></div></form>';
+  }
+  function itemHTML(a) {
+    var n = stockOf(a), open = S.open && S.open.id === a.id, label = esc(a.name + " — " + a.format);
+    return '<li class="item' + (open ? " open" : "") + (S.flash === a.id ? " flash" : "") + '" id="row-' + a.id + '">' +
+      '<div><div class="nm">' + esc(a.name) + '</div><div class="fm">' + esc(a.format) + '</div></div>' +
+      '<div class="st"><b' + (n ? "" : ' class="zero"') + '>' + n + '</b><span class="u">' + units(a, n) + '</span><span class="ex">' + statusHTML(a) + '</span></div>' +
+      '<div class="act"><button type="button" class="btn sm in" data-act="open" data-mode="in" data-id="' + a.id + '" aria-expanded="' + !!(open && S.open.mode === "in") + '" aria-label="Entrée : ' + label + '">+ Entrée</button>' +
+      '<button type="button" class="btn sm out" data-act="open" data-mode="out" data-id="' + a.id + '" aria-expanded="' + !!(open && S.open.mode === "out") + '" aria-label="Sortie : ' + label + '">− Sortie</button></div>' +
+      (open ? panelHTML(a) : "") + '</li>';
+  }
+  function visible(r) { return ART.filter(function (a) { return a.room === r && (!S.q.trim() || matches(a, S.q)) && (!S.watch || watched(a)); }); }
+  function listHTML(r) {
+    var vis = visible(r), h = "";
+    SECTIONS[r].forEach(function (s) {
+      var arts = vis.filter(function (a) { return a.sec === s.id; });
+      if (!arts.length) return;
+      h += '<section class="sec" id="sec-' + r + '-' + s.id + '" aria-labelledby="sh-' + r + '-' + s.id + '"><h3 class="sec-h" id="sh-' + r + '-' + s.id + '"><span class="tag">' + s.id + '</span>' + esc(s.name) +
+        '<span class="n">' + arts.length + ' article(s)</span></h3><ul class="rows">' + arts.map(itemHTML).join("") + '</ul></section>';
+    });
+    if (!h) h = '<p class="empty">' + (S.watch && !S.q.trim() ? "Rien à surveiller dans cette réserve." : "Aucun article ne correspond à « " + esc(S.q) + " ». Produit absent de la liste : mettez-le de côté et prévenez la responsable.") + '</p>';
+    return h;
+  }
+  function secnavHTML(r) {
+    var vis = visible(r);
+    return SECTIONS[r].filter(function (s) { return vis.some(function (a) { return a.sec === s.id; }); }).map(function (s) {
+      return '<a href="#sec-' + r + '-' + s.id + '"><span class="tag">' + s.id + '</span>' + esc(s.name.split(",")[0].split(" :")[0]) + '</a>';
+    }).join("");
+  }
+  function addField(id, lbl, val, err, bind, ph) {
+    return '<div class="f"><label for="' + id + '">' + lbl + '</label><input type="text" id="' + id + '" data-bind="' + bind + '" value="' + esc(val || "") + '" placeholder="' + esc(ph) + '" autocomplete="off"' +
+      (err ? ' aria-invalid="true" aria-describedby="' + id + '-e"' : "") + '>' + (err ? '<span class="err-msg" id="' + id + '-e">' + esc(err) + '</span>' : "") + '</div>';
+  }
+  function addHTML(r) {
+    var x = S.add;
+    if (!x) return '<section class="card"><div class="bd" style="padding-top:18px"><div class="row-flex"><p style="flex:1 1 300px"><b>Produit absent de la liste ?</b> <span class="muted">Le mettre de côté et prévenir la responsable : c’est elle qui ajoute un article, une seule fois.</span></p>' +
+      '<button type="button" class="btn sm" data-act="add-open">Ajouter un article (responsable)</button></div></div></section>';
+    var e = x.err || {};
+    return '<section class="card"><div class="hd"><h3>Ajouter un article · ' + ROOMS[r].name + '</h3><span class="hint">réservé à la responsable</span></div><div class="bd"><form class="stack" data-form="add" novalidate>' +
+      '<div class="addgrid">' + addField("add-name", "Désignation", x.name, e.name, "add.name", "ex. Vaccin C") + addField("add-format", "Format", x.format, e.format, "add.format", "ex. dose 0,5 ml, boîte de 30") +
+      addField("add-unit", "On compte en…", x.unit, e.unit, "add.unit", "ex. dose, boîte, flacon") +
+      '<div class="f"><label for="add-sec">Étagère</label><select id="add-sec" data-bind="add.sec">' + SECTIONS[r].map(function (s) { return '<option value="' + s.id + '"' + (x.sec === s.id ? " selected" : "") + '>' + s.id + " · " + esc(s.name) + '</option>'; }).join("") + '</select></div></div>' +
+      '<fieldset class="f radios"><legend>Date de péremption à chaque entrée ?</legend><label><input type="radio" name="add-exp" value="1" data-act="add-exp"' + (x.exp ? " checked" : "") + '> Oui</label><label><input type="radio" name="add-exp" value="0" data-act="add-exp"' + (!x.exp ? " checked" : "") + '> Non</label></fieldset>' +
+      '<div class="row-flex"><button type="submit" class="btn primary">Ajouter à la liste</button><button type="button" class="btn ghost" data-act="add-close">Annuler</button></div></form></div></section>';
+  }
+  function viewRoom(r) {
+    var arts = ART.filter(function (a) { return a.room === r; }), w = arts.filter(watched).length, exp = arts.filter(function (a) { return status(a).s === "expired"; }).length;
+    return '<section class="hero" aria-labelledby="h-room"><h2 id="h-room"><span class="hk" aria-hidden="true"></span><span>' + ROOMS[r].name + '</span></h2>' +
+      '<p class="lead">' + arts.length + ' articles, rangés par étagère comme dans la réserve. Pour tout ce qui arrive ou qui part : trouvez la ligne, cliquez sur <b>+ Entrée</b> ou <b>− Sortie</b>, tapez la quantité' + (ROOMS[r].exp ? " (et la péremption à l’entrée)" : "") + ', validez.</p>' +
+      '<ol class="how"><li><b>1</b>Trouver la ligne</li><li><b>2</b>+ Entrée ou − Sortie</li><li><b>3</b>Quantité' + (ROOMS[r].exp ? " (+ date)" : "") + ', valider</li></ol>' +
+      '<div class="kpis"><span class="kpi"><b>' + arts.length + '</b> articles</span><span class="kpi"><b>' + SECTIONS[r].length + '</b> étagères</span>' +
+      (ROOMS[r].exp ? '<span class="kpi warn"><b>' + (w - exp) + '</b> péremption(s) proche(s)</span><span class="kpi err"><b>' + exp + '</b> avec du périmé à sortir</span>' : "") + '</div></section>' +
+      '<div class="toolbar"><div class="row-flex"><div class="filter"><input type="search" id="flt" data-bind="q" value="' + esc(S.q) + '" placeholder="Filtrer la liste : 2 ou 3 lettres (« vacc », « amox »)" aria-label="Filtrer la liste" aria-controls="list" autocomplete="off"></div>' +
+      (ROOMS[r].exp ? '<button type="button" class="btn watch" data-act="watch" aria-pressed="' + S.watch + '">À surveiller (' + w + ')</button>' : "") + '</div>' +
+      '<nav class="secnav" id="secnav" aria-label="Aller à l’étagère">' + secnavHTML(r) + '</nav></div>' +
+      '<div class="card list" id="list">' + listHTML(r) + '</div>' + addHTML(r);
+  }
+
+  /* ---------- Mouvements ---------- */
+  var MOTIF = { use: "Utilisé", exp: "Périmé", lost: "Perdu, cassé" };
+  function viewMoves() {
+    var h = '<section class="hero" aria-labelledby="h-moves"><h2 id="h-moves"><span class="hk" aria-hidden="true"></span><span>Mouvements</span></h2>' +
+      '<p class="lead">Tout ce qui est entré et sorti, du plus récent au plus ancien : c’est la traçabilité, à relire sans rien ressaisir. Le dernier mouvement peut être annulé en cas d’erreur.</p></section>';
+    if (!moves.length) return h + '<section class="card"><div class="bd" style="padding-top:18px"><p class="muted">Aucun mouvement pour l’instant. Faites une entrée ou une sortie depuis une réserve.</p></div></section>';
+    return h + '<section class="card"><div class="table-wrap"><table class="flat"><thead><tr><th>Heure</th><th>Réserve</th><th>Article</th><th>Mouvement</th><th>Péremption</th><th>Motif</th><th><span class="sr-only">Action</span></th></tr></thead><tbody>' +
+      moves.map(function (m, i) {
+        var a = art(m.aid), dates = m.t === "in" ? (m.exp ? expTxt(m) : "—") : m.alloc.filter(function (x) { return x.exp; }).map(function (x) { return x.qty + " × " + expTxt(x); }).join(", ") || "—";
+        return '<tr><td data-l="Heure">' + m.time + '</td><td data-l="Réserve">' + ROOMS[a.room].name + '</td><td><b>' + esc(a.name) + '</b><br><span class="small muted">' + esc(a.format) + '</span></td>' +
+          '<td data-l="Mouvement"><span class="badge ' + (m.t === "in" ? "b-in" : "b-out") + '">' + (m.t === "in" ? "+ " : "− ") + m.qty + " " + units(a, m.qty) + '</span></td><td data-l="Péremption">' + dates + '</td>' +
+          '<td data-l="Motif">' + (m.t === "in" ? "Entrée" : MOTIF[m.motif]) + '</td><td>' + (i === 0 ? '<button type="button" class="btn sm ghost" data-act="undo">Annuler</button>' : "") + '</td></tr>';
+      }).join("") + '</tbody></table></div></section>';
+  }
+
+  /* ---------- Le process ---------- */
+  function viewProcess() {
+    var qs = [
+      "Où est l’ordinateur par rapport aux trois réserves ?",
+      "Qui note les entrées et les sorties : une seule personne, ou plusieurs ? Faut-il savoir qui a fait chaque mouvement ?",
+      "Quand note-t-on une sortie : à chaque prise dans la réserve, ou en une fois (par exemple au réassort d’un cabinet) ?",
+      "Les trois motifs de sortie (utilisé, périmé, perdu ou cassé) suffisent-ils ?",
+      "La péremption au mois près (MM/AAAA) suffit-elle ?",
+      "Produit reçu déjà périmé : on le met de côté ; faut-il en garder une trace ?",
+      "Numéro de lot : absent, facultatif, ou obligatoire pour la pharmacie ?",
+      "Alerte péremption : 3 mois avant convient-il ? Seulement dans l’outil, ou aussi par e-mail ?",
+      "Liste de départ : on part de l’ancien inventaire Excel (attendu la semaine du 9 novembre) ? Combien de références par réserve ?",
+      "Inventaire de départ fin 2026 : qui, quand, avec un prestataire sur place ?"
+    ];
+    return '<section class="hero" aria-labelledby="h-proc"><h2 id="h-proc"><span class="hk" aria-hidden="true"></span><span>Le process : une liste par réserve</span></h2>' +
+      '<p class="lead">Chaque réserve a sa liste d’articles, rangée comme ses étagères. Tout ce qui entre ou sort passe par la ligne de l’article : trois gestes, toujours les mêmes. Pas de commande, pas de facture, pas de code-barres, pas de recherche dans une base.</p></section>' +
+      '<div class="grid2"><section class="card c-in"><div class="hd"><h3>+ Entrée (une livraison arrive)</h3></div><div class="bd"><ol class="steps3"><li>Ouvrir la réserve, trouver la ligne : par l’étagère, ou en tapant 2 ou 3 lettres.</li><li>Cliquer sur <b>+ Entrée</b>.</li><li>Taper la quantité et, si l’article en a une, la péremption lue sur l’emballage (06/2027). Valider.</li></ol><p class="small muted">Exemple : 100 vaccins A arrivent → Pharmacie → étagère Frigo → + Entrée → 100, 06/2027 → Valider. Environ 15 secondes.</p></div></section>' +
+      '<section class="card c-out"><div class="hd"><h3>− Sortie (un produit part)</h3></div><div class="bd"><ol class="steps3"><li>Ouvrir la réserve, trouver la ligne.</li><li>Cliquer sur <b>− Sortie</b>.</li><li>Taper la quantité, choisir le motif (utilisé, périmé, perdu ou cassé). Valider.</li></ol><p class="small muted">L’outil retire de lui-même ce qui périme le plus tôt, comme on le fait sur l’étagère : pas de date à choisir.</p></div></section></div>' +
+      '<div class="grid2"><section class="card"><div class="hd"><h3>Les seules règles à connaître</h3></div><div class="bd"><ul class="bul">' +
+      '<li><b>Date dépassée à l’arrivée :</b> on ne range pas, on met de côté. L’outil refuse l’entrée.</li>' +
+      '<li><b>Plusieurs dates dans le même carton :</b> une entrée par date.</li>' +
+      '<li><b>Produit absent de la liste :</b> on le met de côté et on prévient la responsable, qui ajoute la ligne une fois.</li>' +
+      '<li><b>Erreur de saisie :</b> « Annuler » juste après, ou dans Mouvements.</li>' +
+      '<li><b>On compte toujours dans l’unité affichée</b> sur la ligne (boîte, dose, flacon…).</li></ul></div></section>' +
+      '<section class="card"><div class="hd"><h3>Matériel et mise en place</h3></div><div class="bd">' +
+      '<div class="gear"><span>L’ordinateur du centre, avec un navigateur internet</span><b>0 €</b></div>' +
+      '<div class="gear"><span>Une étiquette par étagère (A, B, C…), identique à l’écran</span><b>quelques €</b></div>' +
+      '<div class="gear"><span><b>Une fois, à l’inventaire de départ :</b> la responsable crée la liste de chaque réserve, étagère par étagère, et compte le stock présent (sans les périmés).</span></div>' +
+      '</div></section></div>' +
+      '<section class="card"><div class="hd"><h3>Questions à trancher avec Leila Dizi</h3></div><div class="bd"><ol class="q">' + qs.map(function (q) { return "<li>" + esc(q) + "</li>"; }).join("") + '</ol></div></section>' +
+      '<section class="card"><div class="hd"><h3>Hors périmètre</h3></div><div class="bd"><p class="small">Commandes et facturation · lecteur de codes-barres · cabinets individuels (phase 2) · Mediway (aucun connecteur) · Odoo · Slack/Teams.</p></div></section>';
+  }
+
+  /* ---------- Rendu ---------- */
+  var focusSel = null;
+  function render() {
+    document.querySelectorAll("[role=tab]").forEach(function (t) { var on = t.getAttribute("data-v") === S.view; t.setAttribute("aria-selected", on); t.tabIndex = on ? 0 : -1; });
+    var v = $("#view"), k = S.view;
+    v.className = "r-" + k; v.setAttribute("aria-labelledby", "tab-" + k);
+    v.innerHTML = ROOMS[k] ? viewRoom(k) : k === "moves" ? viewMoves() : viewProcess();
+    if (focusSel) {
+      var el = $(focusSel); focusSel = null;
+      if (el) { el.focus(); var row = el.closest(".item"); if (row) row.scrollIntoView({ block: "nearest" }); }
+    }
+    S.flash = null;
+  }
+  function refreshList() { var r = S.view; $("#list").innerHTML = listHTML(r); $("#secnav").innerHTML = secnavHTML(r); }
+
+  /* ---------- Actions ---------- */
+  function btnSel(id, mode) { return '[data-act="open"][data-mode="' + mode + '"][data-id="' + id + '"]'; }
+  function openPanel(id, mode) {
+    if (S.open && S.open.id === id && S.open.mode === mode) { S.open = null; focusSel = btnSel(id, mode); return; }
+    S.open = { id: id, mode: mode, qty: "", exp: "", motif: "use", err: {} };
+    focusSel = "#p-" + id + "-qty";
+  }
+  function submitIn() {
+    var o = S.open, a = art(o.id), e = {}, q = qtyErr(o.qty), p = null;
+    if (q) e.qty = q;
+    if (a.exp) {
+      p = parseExp(o.exp);
+      if (p.err === "missing") e.exp = "Péremption à saisir, lue sur l’emballage (ex. " + inMonths(8) + ").";
+      else if (p.err) e.exp = "Date non reconnue : écrivez le mois et l’année (ex. " + inMonths(8) + ").";
+      else if (daysUntil(p.iso) < 0) e.exp = "Date dépassée (" + expTxt({ exp: p.iso, mo: p.mo }) + ") : ne rangez pas ce produit, mettez-le de côté.";
+    }
+    if (e.qty || e.exp) { o.err = e; focusSel = "#p-" + a.id + (e.qty ? "-qty" : "-exp"); return render(); }
+    var n = +o.qty, exp = p ? p.iso : null, l = lots.filter(function (x) { return x.aid === a.id && x.exp === exp; })[0], created = !l;
+    if (l) l.qty += n; else { l = { id: nid("l"), aid: a.id, qty: n, exp: exp, mo: p ? p.mo : false }; lots.push(l); }
+    moves.unshift({ id: nid("m"), t: "in", aid: a.id, qty: n, exp: exp, mo: l.mo, lotId: l.id, created: created, time: now() });
+    S.open = null; S.flash = a.id; focusSel = btnSel(a.id, "in");
+    var s = stockOf(a);
+    toast("<b>+ " + n + " " + units(a, n) + "</b> · " + esc(a.name) + "<small>En stock : " + s + " " + units(a, s) + (exp ? " · péremption " + expTxt(l) : "") + "</small>", true);
+    render();
+  }
+  function submitOut() {
+    var o = S.open, a = art(o.id), n = stockOf(a), q = qtyErr(o.qty);
+    if (!q && +o.qty > n) q = n ? "Il n’y a que " + n + " " + units(a, n) + " en stock." : "Rien en stock pour cet article.";
+    if (q) { o.err = { qty: q }; focusSel = "#p-" + a.id + "-qty"; return render(); }
+    var left = +o.qty, alloc = [];
+    live(a).forEach(function (l) { if (!left) return; var t = Math.min(l.qty, left); l.qty -= t; left -= t; alloc.push({ lotId: l.id, qty: t, exp: l.exp, mo: l.mo }); });
+    moves.unshift({ id: nid("m"), t: "out", aid: a.id, qty: +o.qty, motif: o.motif, alloc: alloc, time: now() });
+    S.open = null; S.flash = a.id; focusSel = btnSel(a.id, "out");
+    var dates = alloc.filter(function (x) { return x.exp; }).map(function (x) { return x.qty + " × " + expTxt(x); }).join(", ");
+    toast("<b>− " + o.qty + " " + units(a, +o.qty) + "</b> · " + esc(a.name) + " (" + MOTIF[o.motif].toLowerCase() + ")<small>Reste : " + stockOf(a) + (dates ? " · retiré : " + dates : "") + "</small>", true);
+    render();
+  }
+  function undo() {
+    var m = moves.shift(); if (!m) return;
+    if (m.t === "in") { var l = lot(m.lotId); l.qty -= m.qty; if (m.created && l.qty <= 0) lots.splice(lots.indexOf(l), 1); }
+    else m.alloc.forEach(function (x) { lot(x.lotId).qty += x.qty; });
+    var a = art(m.aid);
+    S.flash = m.aid; S.open = null;
+    toast("Mouvement annulé<small>" + esc(a.name) + " : " + stockOf(a) + " en stock</small>", false);
+    if (ROOMS[S.view] && a.room === S.view) focusSel = btnSel(m.aid, m.t);
+    render();
+  }
+  function submitAdd() {
+    var x = S.add, e = {};
+    if (!x.name.trim()) e.name = "Désignation à saisir.";
+    if (!x.format.trim()) e.format = "Format à saisir.";
+    if (!x.unit.trim()) e.unit = "Unité à saisir (ex. boîte).";
+    if (e.name || e.format || e.unit) { x.err = e; focusSel = "#add-" + (e.name ? "name" : e.format ? "format" : "unit"); return render(); }
+    var a = { id: nid("a"), room: S.view, sec: x.sec, name: x.name.trim(), format: x.format.trim(), unit: x.unit.trim().toLowerCase(), exp: x.exp };
+    ART.push(a); S.add = null; S.q = ""; S.watch = false; S.flash = a.id; focusSel = btnSel(a.id, "in");
+    toast("Article ajouté à la liste<small>" + esc(a.name) + " · étagère " + a.sec + "</small>", false);
+    render();
+  }
+  function go(view) { S.view = view; S.open = null; S.add = null; S.q = ""; S.watch = false; }
+
+  document.addEventListener("click", function (ev) {
+    var t = ev.target.closest("[data-act]"); if (!t) return;
+    switch (t.getAttribute("data-act")) {
+      case "tab": go(t.getAttribute("data-v")); break;
+      case "open": openPanel(t.getAttribute("data-id"), t.getAttribute("data-mode")); break;
+      case "close": focusSel = btnSel(S.open.id, S.open.mode); S.open = null; break;
+      case "motif": S.open.motif = t.value; return;
+      case "watch": S.watch = !S.watch; S.open = null; focusSel = '[data-act="watch"]'; break;
+      case "undo": return undo();
+      case "add-open": S.add = { name: "", format: "", unit: "", sec: SECTIONS[S.view][0].id, exp: ROOMS[S.view].exp, err: {} }; focusSel = "#add-name"; break;
+      case "add-close": S.add = null; focusSel = '[data-act="add-open"]'; break;
+      case "add-exp": S.add.exp = t.value === "1"; return;
+      default: return;
+    }
+    render();
+  });
+  document.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var k = ev.target.getAttribute("data-form");
+    if (k === "in") submitIn(); else if (k === "out") submitOut(); else if (k === "add") submitAdd();
+  });
+  document.addEventListener("input", function (ev) {
+    var b = ev.target.getAttribute && ev.target.getAttribute("data-bind"); if (!b) return;
+    var v = ev.target.value;
+    if (b === "q") { S.q = v; if (S.open && !visible(S.view).some(function (a) { return a.id === S.open.id; })) S.open = null; refreshList(); }
+    else if (b.indexOf("add.") === 0) S.add[b.slice(4)] = v;
+    else if (S.open) S.open[b] = v;
+  });
+  document.addEventListener("keydown", function (ev) {
+    var t = ev.target;
+    if (ev.key === "Escape" && S.open && t.closest && t.closest(".panel")) { ev.preventDefault(); focusSel = btnSel(S.open.id, S.open.mode); S.open = null; render(); return; }
+    if (t.id === "flt" && (ev.key === "ArrowDown" || ev.key === "Enter")) { var f = $('#list [data-act="open"]'); if (f) { ev.preventDefault(); f.focus(); } return; }
+    if (t.getAttribute && t.getAttribute("role") === "tab" && /^(ArrowUp|ArrowDown|ArrowLeft|ArrowRight|Home|End)$/.test(ev.key)) {
+      var tabs = Array.prototype.slice.call(document.querySelectorAll("[role=tab]")), i = tabs.indexOf(t);
+      i = ev.key === "Home" ? 0 : ev.key === "End" ? tabs.length - 1 : (i + (/Up|Left/.test(ev.key) ? -1 : 1) + tabs.length) % tabs.length;
+      ev.preventDefault(); go(tabs[i].getAttribute("data-v")); focusSel = "#" + tabs[i].id; render();
+    }
+  });
+
+  $("#today").textContent = "Aujourd’hui (démo) : " + fr(TODAY_ISO);
+  render();
+})();
+</script>
+</body>
+</html>

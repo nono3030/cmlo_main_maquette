@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLMO · Entrée des stocks — maquette de discussion</title>
+<style>
+  :root {
+    --bg: #f3f4f6;
+    --panel: #ffffff;
+    --ink: #17202b;
+    --ink-2: #44505e;
+    --ink-3: #66717e;
+    --line: #d5dae0;
+    --line-2: #e6e9ed;
+    --accent: #1d4f7c;
+    --accent-ink: #ffffff;
+    --accent-soft: #e7eef6;
+    --focus: #1d6fd1;
+    --red: #a3201a;  --red-bg: #fdecea;
+    --amber: #7a4a00; --amber-bg: #fff3d6;
+    --green: #1c6136; --green-bg: #e6f4ea;
+    --grey: #4a5561; --grey-bg: #eceff2;
+    --radius: 6px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font: 14px/1.45 var(--font); color: var(--ink); background: var(--bg); }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  h1, h2, h3, h4 { margin: 0; line-height: 1.25; }
+  h1 { font-size: 15px; font-weight: 650; }
+  h2 { font-size: 17px; font-weight: 650; }
+  h3 { font-size: 14px; font-weight: 650; }
+  h4 { font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-3); }
+  p { margin: 0; }
+  .muted { color: var(--ink-3); }
+  .small { font-size: 12.5px; }
+  .mono { font-family: var(--mono); font-size: 12.5px; }
+
+  /* Bandeaux */
+  .topbar { display: flex; align-items: center; gap: 16px; padding: 10px 20px; background: var(--ink); color: #fff; }
+  .topbar .where { color: #c9d2dc; font-size: 12.5px; }
+  .topbar .spacer { flex: 1; }
+  .topbar .date { font-size: 12.5px; color: #c9d2dc; }
+  .demo-banner { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; padding: 7px 20px;
+    background: #fff3d6; border-bottom: 1px solid #e8d4a0; color: #4d3500; font-size: 13px; }
+  .demo-banner strong { font-weight: 700; }
+  .demo-banner .pill { border: 1px solid #c9a24a; border-radius: 99px; padding: 1px 9px; font-weight: 600; background: #fff9ea; }
+
+  /* Sélecteur de parcours */
+  .flows { display: flex; gap: 0; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .flows button { appearance: none; border: 0; background: none; padding: 12px 16px 10px; border-bottom: 3px solid transparent;
+    cursor: pointer; text-align: left; white-space: nowrap; color: var(--ink-2); }
+  .flows button:hover { color: var(--ink); background: #f8f9fa; }
+  .flows button[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+  .flows .k { display: inline-block; min-width: 20px; height: 20px; line-height: 20px; text-align: center; border-radius: 4px;
+    background: var(--grey-bg); color: var(--ink-2); font-weight: 700; font-size: 12px; margin-right: 7px; }
+  .flows button[aria-selected="true"] .k { background: var(--accent); color: #fff; }
+  .flows .t { font-weight: 600; }
+  .flows .d { display: block; font-size: 12px; color: var(--ink-3); margin-left: 27px; }
+  .flows .sep { width: 1px; background: var(--line); margin: 10px 8px; }
+
+  /* Mise en page */
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; padding: 16px 20px 40px; max-width: 1560px; margin: 0 auto; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  .card > .hd { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line-2); }
+  .card > .hd .spacer { flex: 1; }
+  .card > .bd { padding: 14px; }
+  .stack > * + * { margin-top: 14px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .grow { flex: 1; }
+  .intro + .steps { margin-top: 12px; }
+  .intro { display: flex; gap: 14px; align-items: flex-start; justify-content: space-between; }
+  .intro p { color: var(--ink-2); max-width: 760px; }
+  .hyp { font-size: 12.5px; color: var(--ink-2); background: var(--grey-bg); border-radius: var(--radius); padding: 8px 10px; }
+  .hyp b { color: var(--ink); }
+
+  /* Étapes */
+  .steps { display: flex; gap: 0; list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #fafbfc; }
+  .steps li { flex: 1; padding: 8px 10px; font-size: 12.5px; color: var(--ink-3); border-right: 1px solid var(--line-2); }
+  .steps li:last-child { border-right: 0; }
+  .steps li b { display: block; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+  .steps li.on { background: var(--accent-soft); color: var(--accent); }
+  .steps li.done { color: var(--green); }
+
+  /* Pièces */
+  .rooms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .room { appearance: none; text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius);
+    padding: 10px 12px; cursor: pointer; }
+  .room:hover { border-color: #9aa6b2; }
+  .room[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: var(--accent-soft); }
+  .room .n { font-weight: 650; }
+  .room .s { font-size: 12px; color: var(--ink-3); }
+
+  /* Formulaires */
+  label.f { display: flex; flex-wrap: wrap; align-items: baseline; align-content: flex-end; gap: 4px 6px; font-size: 12.5px; color: var(--ink-2); font-weight: 600; }
+  label.f > input, label.f > select { flex: 1 0 100%; width: 100%; }
+  label.f .opt { font-weight: 400; color: var(--ink-3); }
+  input[type=text], input[type=number], input[type=date], input[type=search], select {
+    height: 34px; padding: 0 9px; border: 1px solid #b7c0ca; border-radius: 5px; background: #fff; min-width: 0; }
+  input:focus, select:focus { border-color: var(--focus); outline: 2px solid rgba(29,111,209,.25); outline-offset: 0; }
+  input[aria-invalid="true"] { border-color: var(--red); background: #fffafa; }
+  input.scan { height: 42px; font-family: var(--mono); font-size: 16px; letter-spacing: .03em; }
+  .grid-form { display: grid; grid-template-columns: 110px 170px minmax(140px, 1fr) 150px; gap: 12px; align-items: end; }
+  .btn { appearance: none; height: 34px; padding: 0 14px; border-radius: 5px; border: 1px solid #aab4bf; background: #fff; cursor: pointer; font-weight: 600; white-space: nowrap; }
+  .btn:hover { background: #f4f6f8; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { background: #173f63; }
+  .btn.big { height: 42px; padding: 0 18px; }
+  .btn.ghost { border-color: transparent; background: none; color: var(--accent); padding: 0 8px; }
+  .btn.ghost:hover { background: var(--accent-soft); }
+  .btn.danger { color: var(--red); }
+  .btn[disabled] { opacity: .5; cursor: not-allowed; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { appearance: none; border: 1px dashed #9aa6b2; background: #fafbfc; border-radius: 4px; padding: 3px 8px; font-size: 12px; cursor: pointer; color: var(--ink-2); }
+  .chip:hover { border-style: solid; color: var(--ink); }
+  .chip .mono { font-size: 11.5px; color: var(--ink-3); }
+  .switch { display: inline-flex; border: 1px solid #aab4bf; border-radius: 5px; overflow: hidden; }
+  .switch button { appearance: none; border: 0; background: #fff; padding: 5px 10px; cursor: pointer; font-size: 12.5px; }
+  .switch button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+
+  /* Article identifié */
+  .article { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: #fafbfc; }
+  .article .name { font-size: 16px; font-weight: 650; }
+  .article .meta { color: var(--ink-2); font-size: 12.5px; }
+  .notice { padding: 9px 11px; border-radius: var(--radius); font-size: 13px; border: 1px solid; }
+  .notice.warn { background: var(--amber-bg); border-color: #e4c27a; color: var(--amber); }
+  .notice.err { background: var(--red-bg); border-color: #efb3ad; color: var(--red); }
+  .notice.info { background: var(--accent-soft); border-color: #bcd0e4; color: #173f63; }
+  .notice.ok { background: var(--green-bg); border-color: #9fd0ae; color: var(--green); }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11.5px; font-weight: 650; white-space: nowrap; border: 1px solid transparent; }
+  .b-expired { background: var(--red-bg); color: var(--red); border-color: #efb3ad; }
+  .b-soon { background: var(--amber-bg); color: var(--amber); border-color: #e4c27a; }
+  .b-ok { background: var(--green-bg); color: var(--green); border-color: #9fd0ae; }
+  .b-none { background: var(--grey-bg); color: var(--grey); border-color: #d3d9df; }
+  .b-draft { background: var(--amber-bg); color: var(--amber); }
+  .b-done { background: var(--green-bg); color: var(--green); }
+  .b-todo { background: var(--grey-bg); color: var(--grey); }
+
+  /* Tableaux */
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line-2); vertical-align: middle; }
+  th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink-3); font-weight: 650; background: #fafbfc; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.dup td { background: #fffaf0; }
+  tr.bad td { background: #fff7f6; }
+  tr.excluded td { color: var(--ink-3); }
+  tr.excluded td .nm { text-decoration: line-through; }
+  td input[type=number] { width: 80px; }
+  td input[type=date] { width: 150px; }
+  td input[type=text] { width: 110px; }
+  .table-wrap { overflow-x: auto; }
+
+  /* Récap */
+  .kv { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13px; }
+  .kv b { font-variant-numeric: tabular-nums; }
+
+  /* Panneau latéral */
+  .side { display: flex; flex-direction: column; gap: 16px; }
+  .side table th, .side table td { padding: 5px 6px; font-size: 12.5px; }
+  .log { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+  .log li { display: grid; grid-template-columns: 44px 1fr; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--line-2); }
+  .log li:last-child { border-bottom: 0; }
+  .log .tm { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .setting { display: grid; grid-template-columns: 1fr 110px; gap: 8px; align-items: center; font-size: 12.5px; padding: 4px 0; }
+
+  /* Résultats de recherche */
+  .results { border: 1px solid var(--line); border-radius: var(--radius); max-height: 220px; overflow: auto; }
+  .results button { display: flex; width: 100%; gap: 10px; justify-content: space-between; appearance: none; border: 0; border-bottom: 1px solid var(--line-2);
+    background: #fff; padding: 7px 10px; text-align: left; cursor: pointer; }
+  .results button:hover, .results button:focus-visible { background: var(--accent-soft); }
+
+  /* Inventaire */
+  .progress { height: 6px; background: var(--line-2); border-radius: 3px; overflow: hidden; }
+  .progress i { display: block; height: 100%; background: var(--accent); }
+
+  /* Toast */
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 16px;
+    border-radius: var(--radius); font-size: 13.5px; box-shadow: 0 4px 16px rgba(0,0,0,.18); max-width: min(92vw, 640px); display: none; z-index: 10; }
+  .toast.on { display: block; }
+  .toast small { display: block; color: #c9d2dc; font-size: 12px; }
+
+  /* Comparer */
+  .cmp th:first-child { width: 190px; }
+  .reco { border-left: 4px solid var(--accent); }
+  ol.q { margin: 0; padding-left: 20px; } ol.q li + li { margin-top: 4px; }
+
+  @media (max-width: 1100px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .grid-form { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .topbar { flex-wrap: wrap; gap: 4px 12px; padding: 8px 12px; }
+    .demo-banner, .flows { padding-left: 12px; padding-right: 12px; }
+    .layout { padding: 12px; }
+    .rooms { grid-template-columns: 1fr; }
+    .grid-form { grid-template-columns: 1fr; }
+    .steps { flex-direction: column; }
+    .steps li { border-right: 0; border-bottom: 1px solid var(--line-2); }
+    .flows .d { display: none; }
+    .intro { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <h1>CLMO · Entrée des stocks</h1>
+  <span class="where">Réserves centrales · phase 1 · poste fixe</span>
+  <span class="spacer"></span>
+  <span class="date" id="today"></span>
+</header>
+<div class="demo-banner" role="note">
+  <strong>Maquette de discussion — aucune donnée n'est enregistrée</strong>
+  <span class="pill">Données fictives</span>
+  <span>Trois parcours à comparer avec Leila Dizi. Recharger la page remet la démo à zéro.</span>
+</div>
+<nav class="flows" role="tablist" aria-label="Parcours">
+  <button role="tab" data-flow="A"><span class="k">A</span><span class="t">Scanner et ranger tout de suite</span><span class="d">Article par article, au rangement</span></button>
+  <button role="tab" data-flow="B"><span class="k">B</span><span class="t">Réception groupée</span><span class="d">Une liste, contrôlée puis validée</span></button>
+  <button role="tab" data-flow="C"><span class="k">C</span><span class="t">Inventaire initial guidé</span><span class="d">Ponctuel, fin 2026</span></button>
+  <span class="sep" aria-hidden="true"></span>
+  <button role="tab" data-flow="cmp"><span class="k">≡</span><span class="t">Comparer</span><span class="d">Avantages, limites, questions</span></button>
+</nav>
+<div class="layout">
+  <main id="view" class="stack" role="tabpanel"></main>
+  <aside id="side" class="side" aria-label="État de la démo"></aside>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Données fictives ---------- */
+  var ROOMS = {
+    pharma: { name: "Pharmacie", sub: "Médicaments, vaccins · 1 à 2 livraisons / semaine" },
+    cons:   { name: "Consommables", sub: "Seringues, compresses, gants · hebdomadaire" },
+    pap:    { name: "Papeterie", sub: "Commandes ponctuelles, plus volumineuses" }
+  };
+  var ROOM_IDS = ["pharma", "cons", "pap"];
+
+  // Codes 200… : plage GS1 à usage interne, donc sans lien avec un produit réel.
+  var catalogue = [
+    { id: "a1",  code: "2000000000017", name: "Seringue Luer DÉMO",          format: "5 ml",                     room: "cons",   exp: true },
+    { id: "a2",  code: "2000000000024", name: "Seringue Luer DÉMO",          format: "3 ml",                     room: "cons",   exp: true },
+    { id: "a3",  code: "2000000000031", name: "Compresses stériles DÉMO",    format: "10 × 10 cm, boîte de 50",  room: "cons",   exp: true },
+    { id: "a4",  code: "2000000000048", name: "Gants nitrile DÉMO",          format: "taille M, boîte de 100",   room: "cons",   exp: false },
+    { id: "a5",  code: "2000000000055", name: "Exemplol (produit fictif)",   format: "500 mg, boîte de 16",      room: "pharma", exp: true },
+    { id: "a6",  code: "2000000000062", name: "Vaccin fictif « Démo-V »",    format: "dose 0,5 ml",              room: "pharma", exp: true },
+    { id: "a7",  code: "2000000000079", name: "Solution fictive « Placebex »", format: "flacon 100 ml",          room: "pharma", exp: true },
+    { id: "a8",  code: "2000000000086", name: "Ramette papier DÉMO",         format: "A4 80 g, 500 feuilles",    room: "pap",    exp: false },
+    { id: "a9",  code: "2000000000093", name: "Stylos bille DÉMO",           format: "bleu, boîte de 50",        room: "pap",    exp: false },
+    { id: "a10", code: "2000000000109", name: "Chemises cartonnées DÉMO",    format: "A4, paquet de 100",        room: "pap",    exp: false }
+  ];
+  var UNKNOWN_CODE = "2000000000994";
+
+  var TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+  function iso(d) { var m = d.getMonth() + 1, j = d.getDate(); return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m + "-" + (j < 10 ? "0" : "") + j; }
+  function addDays(n) { var d = new Date(TODAY); d.setDate(d.getDate() + n); return iso(d); }
+  function addMonths(base, n) { var d = new Date(base); d.setMonth(d.getMonth() + n); return d; }
+  function parseISO(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function fr(s) { if (!s) return "—"; var p = s.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
+  var TODAY_ISO = iso(TODAY);
+
+  var uid = 0; function nid(p) { uid += 1; return p + uid; }
+
+  var stock = [
+    { id: nid("l"), articleId: "a5", room: "pharma", qty: 24,  entry: addDays(-20), expiry: addDays(50),  lot: "", src: "départ" },
+    { id: nid("l"), articleId: "a6", room: "pharma", qty: 10,  entry: addDays(-12), expiry: addDays(240), lot: "", src: "départ" },
+    { id: nid("l"), articleId: "a1", room: "cons",   qty: 200, entry: addDays(-30), expiry: addDays(700), lot: "", src: "départ" },
+    { id: nid("l"), articleId: "a4", room: "cons",   qty: 12,  entry: addDays(-30), expiry: null,         lot: "", src: "départ" },
+    { id: nid("l"), articleId: "a8", room: "pap",    qty: 30,  entry: addDays(-60), expiry: null,         lot: "", src: "départ" }
+  ];
+
+  var settings = { alert: { pharma: 3, cons: 3, pap: 0 } }; // mois ; proposition à valider
+  var log = [];
+
+  var S = {
+    flow: "A",
+    A: { room: null, phase: "scan", manual: false, search: "", unknown: null, form: null, last: [] },
+    B: { room: null, rec: null, manual: false, search: "", unknown: null, done: [] },
+    C: { room: "pharma", manual: false, search: "", unknown: null, sel: null, form: null,
+         inv: { pharma: { closed: false, lines: [] }, cons: { closed: false, lines: [] }, pap: { closed: false, lines: [] } } }
+  };
+
+  /* ---------- Outils ---------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function art(id) { for (var i = 0; i < catalogue.length; i++) if (catalogue[i].id === id) return catalogue[i]; return null; }
+  function byCode(code) { for (var i = 0; i < catalogue.length; i++) if (catalogue[i].code === code) return catalogue[i]; return null; }
+  function label(a) { return a.name + " — " + a.format; }
+  function now() { var d = new Date(); return (d.getHours() < 10 ? "0" : "") + d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes(); }
+  function addLog(flow, text) { log.unshift({ tm: now(), flow: flow, text: text }); if (log.length > 40) log.pop(); }
+
+  function expStatus(expiry, room) {
+    if (!expiry) return "none";
+    var d = parseISO(expiry);
+    if (d < TODAY) return "expired";
+    var m = settings.alert[room] || 0;
+    if (m > 0 && d <= addMonths(TODAY, m)) return "soon";
+    return "ok";
+  }
+  function badge(expiry, room, noExp) {
+    if (noExp) return '<span class="badge b-none">Sans péremption</span>';
+    var st = expStatus(expiry, room);
+    if (st === "none") return '<span class="badge b-none">Date à saisir</span>';
+    if (st === "expired") return '<span class="badge b-expired">Périmé</span>';
+    if (st === "soon") return '<span class="badge b-soon">Péremption proche</span>';
+    return '<span class="badge b-ok">OK</span>';
+  }
+
+  var toastTimer;
+  function toast(msg, sub) {
+    var t = $("#toast");
+    t.innerHTML = esc(msg) + '<small>' + esc(sub || "Enregistré uniquement dans la mémoire de cette page (démo).") + '</small>';
+    t.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("on"); }, 3200);
+  }
+
+  /* ---------- Briques communes ---------- */
+  function roomPicker(flow, current, hint) {
+    return '<div class="rooms" role="group" aria-label="Pièce">' + ROOM_IDS.map(function (r) {
+      return '<button class="room" data-act="room" data-flow="' + flow + '" data-room="' + r + '" aria-pressed="' + (current === r) + '">' +
+        '<div class="n">' + ROOMS[r].name + '</div><div class="s">' + esc(hint ? hint(r) : ROOMS[r].sub) + '</div></button>';
+    }).join("") + '</div>';
+  }
+
+  function scanBox(flow, title) {
+    var st = S[flow];
+    var demoCodes = catalogue.slice(0, 10).filter(function (a, i) { return i < 10; });
+    var h = '<div class="stack">' +
+      '<div class="row"><h3 class="grow">' + esc(title) + '</h3>' +
+      '<div class="switch" role="group" aria-label="Mode de saisie">' +
+      '<button data-act="mode" data-flow="' + flow + '" data-manual="0" aria-pressed="' + !st.manual + '">Lecteur</button>' +
+      '<button data-act="mode" data-flow="' + flow + '" data-manual="1" aria-pressed="' + st.manual + '">Mode manuel</button></div></div>';
+    if (!st.manual) {
+      h += '<form class="row" data-form="scan" data-flow="' + flow + '" autocomplete="off">' +
+        '<label class="f grow">Code-barres <span class="opt">le lecteur USB tape le code puis « Entrée »</span>' +
+        '<input class="scan" type="text" inputmode="numeric" id="scan-' + flow + '" name="code" placeholder="Bipez un article…" aria-describedby="scanhelp-' + flow + '"></label>' +
+        '<button class="btn big" type="submit" style="align-self:flex-end">Valider le code</button></form>' +
+        '<div id="scanhelp-' + flow + '" class="stack" style="margin-top:8px"><p class="small muted">Simuler un bip du lecteur (codes fictifs) :</p><div class="chips">' +
+        demoCodes.filter(function (a) { return flow !== "C" || a.room === S.C.room; }).concat(flow === "C" ? [] : []).map(function (a) {
+          return '<button class="chip" data-act="sim" data-flow="' + flow + '" data-code="' + a.code + '">' + esc(a.name + " " + a.format) + ' <span class="mono">' + a.code.slice(-4) + '</span></button>';
+        }).join("") +
+        '<button class="chip" data-act="sim" data-flow="' + flow + '" data-code="' + UNKNOWN_CODE + '">Code inconnu <span class="mono">' + UNKNOWN_CODE.slice(-4) + '</span></button>' +
+        '</div></div>';
+    } else {
+      var q = st.search.trim().toLowerCase();
+      var res = catalogue.filter(function (a) { return !q || label(a).toLowerCase().indexOf(q) >= 0; });
+      h += '<label class="f">Rechercher un article par nom ou format' +
+        '<input type="search" id="search-' + flow + '" data-input="search" data-flow="' + flow + '" value="' + esc(st.search) + '" placeholder="ex. seringue 5"></label>' +
+        '<div class="results" id="results-' + flow + '">' + resultsHtml(flow, res) + '</div>' +
+        '<button class="btn ghost" data-act="newart" data-flow="' + flow + '">+ Article absent de la liste : créer une fiche minimale</button>';
+    }
+    if (st.unknown) h += unknownPanel(flow);
+    return h + '</div>';
+  }
+  function resultsHtml(flow, res) {
+    if (!res.length) return '<p class="small muted" style="padding:8px 10px">Aucun article trouvé.</p>';
+    return res.map(function (a) {
+      return '<button data-act="pick" data-flow="' + flow + '" data-id="' + a.id + '"><span><b>' + esc(a.name) + '</b> · ' + esc(a.format) + '</span><span class="small muted">' + ROOMS[a.room].name + '</span></button>';
+    }).join("");
+  }
+  function unknownPanel(flow) {
+    var u = S[flow].unknown;
+    return '<form class="notice warn stack" data-form="newart" data-flow="' + flow + '" autocomplete="off">' +
+      '<div><b>' + (u.code ? 'Code inconnu : <span class="mono">' + esc(u.code) + '</span>.' : 'Nouvel article.') + '</b> Ajout minimal : deux champs, la fiche se complète plus tard si besoin.</div>' +
+      '<div class="grid-form" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 190px auto">' +
+      '<label class="f">Désignation / marque<input type="text" name="name" id="new-name-' + flow + '" required placeholder="ex. Seringue Luer DÉMO"></label>' +
+      '<label class="f">Format / dosage<input type="text" name="format" required placeholder="ex. 5 ml"></label>' +
+      '<label class="f">A une date de péremption ?<select name="exp"><option value="1">Oui</option><option value="0">Non</option></select></label>' +
+      '<div class="row"><button class="btn primary" type="submit">Créer et continuer</button><button class="btn ghost" type="button" data-act="cancelnew" data-flow="' + flow + '">Annuler</button></div>' +
+      '</div></form>';
+  }
+
+  function onCode(flow, raw) {
+    var code = String(raw || "").trim();
+    if (!code) return;
+    var a = byCode(code);
+    if (!a) { S[flow].unknown = { code: code }; addLog(flow, "Code inconnu " + code + " : ajout minimal proposé"); render(); focusLater("#new-name-" + flow); return; }
+    addLog(flow, "Scan " + code.slice(-4) + " → " + label(a));
+    onPick(flow, a.id);
+  }
+
+  function onPick(flow, id) {
+    S[flow].unknown = null; S[flow].search = "";
+    if (flow === "A") pickA(id);
+    if (flow === "B") pickB(id);
+    if (flow === "C") pickC(id);
+  }
+
+  function focusLater(sel) { setTimeout(function () { var el = $(sel); if (el) { el.focus(); if (el.select && el.type !== "date") el.select(); } }, 0); }
+
+  /* ---------- Parcours A ---------- */
+  function viewA() {
+    var st = S.A;
+    var steps = ["Pièce", "Scanner", "Vérifier", "Quantité / péremption", "Ranger"];
+    var cur = !st.room ? 0 : st.phase === "scan" ? 1 : 3;
+    var h = intro("A", "Scanner et ranger tout de suite",
+      "Chaque article est saisi au moment où il est rangé. Le code-barres préremplit la référence ; la quantité et, si l'article en a une, la date de péremption restent saisies et contrôlées par la personne. Après confirmation, le curseur revient sur le scan pour l'article suivant.") +
+      stepper(steps, cur);
+    h += '<section class="card"><div class="hd"><h3>1. Pièce où l\'on range</h3><span class="spacer"></span><span class="small muted">mémorisée pour la session</span></div><div class="bd">' + roomPicker("A", st.room) + '</div></section>';
+    if (!st.room) return h + '<p class="notice info">Choisissez une pièce pour commencer.</p>';
+
+    if (st.phase === "scan") {
+      h += '<section class="card"><div class="bd">' + scanBox("A", "2. Scanner l'article · " + ROOMS[st.room].name) + '</div></section>';
+    } else {
+      var a = art(st.form.articleId);
+      var noExp = !a.exp;
+      var bad = !st.form.qty || +st.form.qty <= 0 || (!noExp && !st.form.expiry);
+      h += '<section class="card"><div class="hd"><h3>3. Vérifier et compléter</h3><span class="spacer"></span><button class="btn ghost" data-act="a-back">← Rescanner</button></div><div class="bd stack">' +
+        '<div class="article"><div><div class="name">' + esc(a.name) + '</div><div class="meta">' + esc(a.format) + ' · code <span class="mono">' + esc(a.code || "—") + '</span></div></div>' +
+        '<div style="text-align:right"><div class="small muted">Stock actuel ' + ROOMS[st.room].name + '</div><b>' + qtyIn(a.id, st.room) + '</b></div></div>' +
+        (a.room !== st.room ? '<p class="notice warn">Cet article est habituellement rangé en <b>' + ROOMS[a.room].name + '</b>. Vous pouvez continuer en ' + ROOMS[st.room].name + ' ou changer de pièce.</p>' : '') +
+        '<form data-form="a-confirm" autocomplete="off" class="stack">' +
+        '<div class="grid-form">' +
+        '<label class="f">Quantité<input type="number" min="1" step="1" id="a-qty" data-input="a" data-k="qty" value="' + esc(st.form.qty) + '" aria-invalid="' + (!st.form.qty) + '"></label>' +
+        (noExp ? '<div class="f"><span class="small" style="font-weight:600;color:var(--ink-2)">Péremption</span><div style="height:34px;display:flex;align-items:center">' + badge(null, st.room, true) + '</div></div>'
+               : '<label class="f">Date de péremption<input type="date" id="a-exp" data-input="a" data-k="expiry" value="' + esc(st.form.expiry) + '" aria-invalid="' + (!st.form.expiry) + '"></label>') +
+        '<label class="f">N° de lot <span class="opt">facultatif · à valider</span><input type="text" data-input="a" data-k="lot" value="' + esc(st.form.lot) + '"></label>' +
+        '<label class="f">Date d\'entrée <span class="opt">préremplie</span><input type="date" data-input="a" data-k="entry" value="' + esc(st.form.entry) + '"></label>' +
+        '</div>' +
+        '<div id="a-exp-state">' + aExpState(a) + '</div>' +
+        '<div class="row"><button class="btn primary big" type="submit" id="a-submit"' + (bad ? ' disabled' : '') + '>Confirmer le rangement</button>' +
+        '<span class="small muted">Touche Entrée pour confirmer · l\'article suivant s\'enchaîne</span></div></form></div></section>';
+    }
+
+    h += '<section class="card"><div class="hd"><h3>Rangés pendant cette session</h3><span class="spacer"></span><span class="small muted">' + st.last.length + ' entrée(s)</span></div><div class="bd">' +
+      (st.last.length ? '<div class="table-wrap"><table><thead><tr><th>Heure</th><th>Article</th><th class="num">Qté</th><th>Péremption</th><th></th></tr></thead><tbody>' +
+        st.last.map(function (e, i) {
+          var l = lotById(e.lotId); if (!l) return "";
+          var a = art(l.articleId);
+          return '<tr><td class="mono">' + e.tm + '</td><td>' + esc(label(a)) + '</td><td class="num">' + l.qty + '</td><td>' + fr(l.expiry) + ' ' + badge(l.expiry, l.room, !a.exp) + '</td>' +
+            '<td style="text-align:right">' + (i === 0 ? '<button class="btn ghost danger" data-act="a-undo">Annuler cette entrée</button>' : '') + '</td></tr>';
+        }).join("") + '</tbody></table></div>' : '<p class="small muted">Rien encore. Scannez un article pour voir l\'enchaînement.</p>') +
+      '</div></section>';
+    return h;
+  }
+  function aExpState(a) {
+    var f = S.A.form;
+    if (!a.exp) return '<p class="notice info small">Article sans péremption (réglage de la fiche article) : seule la quantité est demandée.</p>';
+    if (!f.expiry) return '<p class="small muted">La date se lit sur l\'emballage ; le code-barres ne la fournit pas forcément.</p>';
+    var st = expStatus(f.expiry, S.A.room);
+    if (st === "expired") return '<p class="notice err">Date déjà passée : produit périmé. À ne pas ranger, à vérifier avec la livraison.</p>';
+    if (st === "soon") return '<p class="notice warn">Péremption proche (moins de ' + settings.alert[S.A.room] + ' mois, réglage proposé). L\'entrée est possible ; un badge la signalera dans le stock.</p>';
+    return '<p class="small muted">' + badge(f.expiry, S.A.room) + ' Péremption au ' + fr(f.expiry) + '.</p>';
+  }
+  function pickA(id) {
+    S.A.phase = "form";
+    S.A.form = { articleId: id, qty: "", expiry: "", lot: "", entry: TODAY_ISO };
+    render(); focusLater("#a-qty");
+  }
+  function confirmA() {
+    var f = S.A.form, a = art(f.articleId);
+    if (!f.qty || +f.qty <= 0 || (a.exp && !f.expiry)) return;
+    if (a.exp && expStatus(f.expiry, S.A.room) === "expired") { toast("Produit périmé : entrée refusée dans la démo.", "Proposition : le signaler comme non conforme à la livraison."); return; }
+    var l = { id: nid("l"), articleId: a.id, room: S.A.room, qty: +f.qty, entry: f.entry || TODAY_ISO, expiry: a.exp ? f.expiry : null, lot: f.lot, src: "A" };
+    stock.push(l);
+    S.A.last.unshift({ lotId: l.id, tm: now() });
+    addLog("A", "+" + l.qty + " " + label(a) + " → " + ROOMS[l.room].name);
+    toast("Rangement confirmé : " + l.qty + " × " + label(a) + " en " + ROOMS[l.room].name + ".");
+    S.A.phase = "scan"; S.A.form = null;
+    render(); focusLater("#scan-A");
+  }
+
+  /* ---------- Parcours B ---------- */
+  function viewB() {
+    var st = S.B, rec = st.rec;
+    var steps = ["Créer la réception", "Ajouter les lignes", "Corriger", "Contrôler", "Valider puis ranger"];
+    var cur = !rec ? 0 : rec.status === "validated" ? 5 : rec.lines.length ? 3 : 1;
+    var h = intro("B", "Réception groupée",
+      "La livraison est saisie comme une liste : une ligne par article et par date de péremption. Chaque ligne se corrige seule, sans tout recommencer. Rien n'entre en stock tant que la réception n'est pas validée.") + stepper(steps, cur);
+
+    if (!rec || rec.status === "validated") {
+      h += '<section class="card"><div class="hd"><h3>1. Nouvelle réception</h3></div><div class="bd stack">' + roomPicker("B", st.room) +
+        '<div class="row"><label class="f">Date de réception <span class="opt">préremplie</span><input type="date" id="b-date" value="' + TODAY_ISO + '"></label>' +
+        '<label class="f grow">Réf. bon de livraison <span class="opt">facultatif · à valider</span><input type="text" id="b-bl" placeholder="ex. BL-DÉMO-0042"></label>' +
+        '<button class="btn primary big" data-act="b-create" style="align-self:flex-end"' + (st.room ? '' : ' disabled') + '>Créer la réception</button></div>' +
+        (st.room ? '' : '<p class="small muted">Choisissez la pièce de destination (une réception = une pièce, proposition).</p>') +
+        '</div></section>';
+    } else {
+      var sum = bSummary();
+      h += '<section class="card"><div class="hd"><h3>Réception ' + esc(rec.id) + '</h3><span class="badge b-draft">Brouillon</span>' +
+        '<span class="small muted">' + ROOMS[rec.room].name + ' · ' + fr(rec.date) + (rec.bl ? ' · ' + esc(rec.bl) : '') + '</span><span class="spacer"></span>' +
+        '<button class="btn ghost danger" data-act="b-cancel">Abandonner le brouillon</button></div>' +
+        '<div class="bd stack">' + scanBox("B", "2. Ajouter un article à la liste") + '</div></section>';
+      h += '<section class="card"><div class="hd"><h3>3. Lignes de la réception</h3><span class="spacer"></span><span class="small muted">modifiables jusqu\'à validation</span></div>' +
+        '<div class="table-wrap"><table id="b-table"><thead><tr><th>#</th><th>Article</th><th class="num">Quantité</th><th>Péremption</th><th>N° lot <span class="muted" style="text-transform:none">(facult.)</span></th><th>État</th><th></th></tr></thead><tbody>' +
+        (rec.lines.length ? rec.lines.map(function (ln, i) { return bRow(ln, i); }).join("") : '<tr><td colspan="7" class="muted small">Aucune ligne. Scannez ou recherchez les articles de la livraison.</td></tr>') +
+        '</tbody></table></div>' +
+        '<div class="bd stack" style="border-top:1px solid var(--line-2)"><h3>4. Contrôle avant validation</h3><div id="b-summary">' + sum.html + '</div>' +
+        '<div class="row"><button class="btn primary big" data-act="b-validate" id="b-validate"' + (sum.ok ? '' : ' disabled') + '>Valider la réception et ranger</button>' +
+        '<span class="small muted">Toutes les lignes entrent en stock en une fois.</span></div></div></section>';
+    }
+
+    if (st.done.length) {
+      h += '<section class="card"><div class="hd"><h3>Réceptions validées (démo)</h3></div><div class="table-wrap"><table><thead><tr><th>Réception</th><th>Pièce</th><th>Date</th><th class="num">Lignes</th><th class="num">Unités</th><th>Statut</th></tr></thead><tbody>' +
+        st.done.map(function (r) { return '<tr><td class="mono">' + esc(r.id) + '</td><td>' + ROOMS[r.room].name + '</td><td>' + fr(r.date) + '</td><td class="num">' + r.n + '</td><td class="num">' + r.units + '</td><td><span class="badge b-done">Validée</span></td></tr>'; }).join("") +
+        '</tbody></table></div></section>';
+    }
+    return h;
+  }
+  function bLineIssues(ln, lines) {
+    var a = art(ln.articleId), out = [];
+    if (!ln.qty || +ln.qty <= 0) out.push("qty");
+    if (a.exp && !ln.expiry) out.push("exp");
+    if (a.exp && ln.expiry && expStatus(ln.expiry, S.B.rec.room) === "expired") out.push("expired");
+    var dup = lines.some(function (o) { return o !== ln && o.articleId === ln.articleId && (o.expiry || "") === (ln.expiry || "") && lines.indexOf(o) < lines.indexOf(ln); });
+    if (dup) out.push("dup");
+    return out;
+  }
+  function bStateCell(ln) {
+    var a = art(ln.articleId), is = bLineIssues(ln, S.B.rec.lines), parts = [];
+    if (is.indexOf("dup") >= 0) parts.push('<span class="badge b-soon">Doublon</span> <button class="btn ghost" style="height:24px" data-act="b-merge" data-id="' + ln.id + '">Cumuler avec la ligne au-dessus</button>');
+    if (is.indexOf("qty") >= 0) parts.push('<span class="badge b-expired">Quantité manquante</span>');
+    if (is.indexOf("exp") >= 0) parts.push('<span class="badge b-expired">Péremption manquante</span>');
+    if (is.indexOf("expired") >= 0) parts.push('<span class="badge b-expired">Périmé : à retirer</span>');
+    if (!parts.length) parts.push(a.exp ? badge(ln.expiry, S.B.rec.room) : badge(null, null, true));
+    return parts.join(" ");
+  }
+  function bRow(ln, i) {
+    var a = art(ln.articleId), is = bLineIssues(ln, S.B.rec.lines);
+    var cls = is.indexOf("dup") >= 0 ? "dup" : (is.length ? "bad" : "");
+    return '<tr data-line="' + ln.id + '" class="' + cls + '"><td class="mono">' + (i + 1) + '</td><td><b>' + esc(a.name) + '</b><div class="small muted">' + esc(a.format) + '</div></td>' +
+      '<td class="num"><input type="number" min="1" step="1" data-input="b" data-id="' + ln.id + '" data-k="qty" id="b-qty-' + ln.id + '" value="' + esc(ln.qty) + '" aria-label="Quantité ligne ' + (i + 1) + '"></td>' +
+      '<td>' + (a.exp ? '<input type="date" data-input="b" data-id="' + ln.id + '" data-k="expiry" value="' + esc(ln.expiry) + '" aria-label="Péremption ligne ' + (i + 1) + '">' : '<span class="small muted">—</span>') + '</td>' +
+      '<td><input type="text" data-input="b" data-id="' + ln.id + '" data-k="lot" value="' + esc(ln.lot) + '" aria-label="Lot ligne ' + (i + 1) + '"></td>' +
+      '<td class="state">' + bStateCell(ln) + '</td>' +
+      '<td style="text-align:right"><button class="btn ghost danger" data-act="b-del" data-id="' + ln.id + '" aria-label="Supprimer la ligne ' + (i + 1) + '">Supprimer</button></td></tr>';
+  }
+  function bSummary() {
+    var lines = S.B.rec.lines, incomplete = 0, dups = 0, soon = 0, expired = 0, units = 0;
+    lines.forEach(function (ln) {
+      var is = bLineIssues(ln, lines);
+      if (is.indexOf("qty") >= 0 || is.indexOf("exp") >= 0) incomplete++;
+      if (is.indexOf("dup") >= 0) dups++;
+      if (is.indexOf("expired") >= 0) expired++;
+      if (ln.expiry && expStatus(ln.expiry, S.B.rec.room) === "soon") soon++;
+      units += +ln.qty || 0;
+    });
+    var ok = lines.length > 0 && !incomplete && !expired;
+    var html = '<div class="kv"><span>Lignes <b>' + lines.length + '</b></span><span>Unités <b>' + units + '</b></span>' +
+      '<span>Incomplètes <b>' + incomplete + '</b></span><span>Doublons <b>' + dups + '</b></span><span>Péremption proche <b>' + soon + '</b></span><span>Périmées <b>' + expired + '</b></span></div>' +
+      (!lines.length ? '<p class="small muted">Ajoutez au moins une ligne.</p>' :
+        incomplete || expired ? '<p class="notice err small">Validation bloquée : complétez ou retirez les lignes signalées en rouge.</p>' :
+        dups ? '<p class="notice warn small">Des doublons restent : vous pouvez les cumuler, ou valider s\'il s\'agit bien de deux lignes distinctes.</p>' :
+        '<p class="notice ok small">Liste complète : prête à valider.</p>');
+    return { ok: ok, html: html };
+  }
+  function refreshB(lineId) {
+    var ln = S.B.rec.lines.filter(function (l) { return l.id === lineId; })[0];
+    S.B.rec.lines.forEach(function (l) {
+      var tr = $('tr[data-line="' + l.id + '"]'); if (!tr) return;
+      var is = bLineIssues(l, S.B.rec.lines);
+      tr.className = is.indexOf("dup") >= 0 ? "dup" : (is.length ? "bad" : "");
+      $(".state", tr).innerHTML = bStateCell(l);
+    });
+    var sum = bSummary();
+    $("#b-summary").innerHTML = sum.html;
+    $("#b-validate").disabled = !sum.ok;
+    return ln;
+  }
+  function pickB(id) {
+    var rec = S.B.rec, a = art(id);
+    var ln = { id: nid("r"), articleId: id, qty: "", expiry: "", lot: "" };
+    rec.lines.push(ln);
+    var dup = rec.lines.some(function (o) { return o !== ln && o.articleId === id; });
+    addLog("B", "Ligne " + rec.lines.length + " : " + label(a) + (dup ? " (déjà dans la liste)" : ""));
+    if (a.room !== rec.room) toast("Ligne ajoutée. Attention : article habituellement rangé en " + ROOMS[a.room].name + ".", "Démo : rien n'est enregistré.");
+    render(); focusLater("#b-qty-" + ln.id);
+  }
+
+  /* ---------- Parcours C ---------- */
+  function viewC() {
+    var st = S.C, inv = st.inv[st.room];
+    var steps = ["Pièce", "Identifier", "Compter", "Écarter les périmés", "Clôturer la pièce"];
+    var cur = inv.closed ? 5 : st.sel ? 2 : 1;
+    var h = intro("C", "Inventaire initial guidé",
+      "Mode ponctuel pour démarrer l'outil pendant l'inventaire annuel de fin 2026, pièce par pièce. On saisit la quantité réellement présente, par date de péremption. Les produits déjà périmés sont signalés et exclus du stock de départ. Ce n'est pas un flux quotidien.") + stepper(steps, cur);
+    h += '<section class="card"><div class="hd"><h3>Pièce inventoriée</h3></div><div class="bd">' + roomPicker("C", st.room, function (r) {
+      var p = cProgress(r); return st.inv[r].closed ? "Clôturée · " + p.done + " article(s)" : p.done + " / " + p.total + " article(s) pointé(s)";
+    }) + '</div></section>';
+
+    var p = cProgress(st.room);
+    h += '<section class="card"><div class="hd"><h3>Pointage · ' + ROOMS[st.room].name + '</h3><span class="spacer"></span><span class="small muted">' + p.done + ' / ' + p.total + '</span></div>' +
+      '<div class="bd stack"><div class="progress" aria-hidden="true"><i style="width:' + (p.total ? Math.round(100 * p.done / p.total) : 0) + '%"></i></div>' +
+      '<div class="table-wrap"><table><thead><tr><th>Article</th><th class="num">Compté</th><th>Lots saisis</th><th>Pointage</th><th></th></tr></thead><tbody>' +
+      cArticles(st.room).map(function (a) {
+        var ls = inv.lines.filter(function (l) { return l.articleId === a.id; });
+        var kept = ls.filter(function (l) { return !l.excluded; }), ex = ls.length - kept.length;
+        var tot = kept.reduce(function (s, l) { return s + l.qty; }, 0);
+        var status = ls.length ? '<span class="badge b-done">Pointé</span>' : '<span class="badge b-todo">À compter</span>';
+        return '<tr' + (st.sel === a.id ? ' style="outline:2px solid var(--accent);outline-offset:-2px"' : '') + '><td><b>' + esc(a.name) + '</b><div class="small muted">' + esc(a.format) + '</div></td><td class="num">' + (ls.length ? tot : "—") + '</td>' +
+          '<td class="small">' + (ls.length ? ls.map(function (l) { return (l.excluded ? '<span class="badge b-expired">Exclu</span> ' : '') + l.qty + (a.exp ? ' · ' + fr(l.expiry) : ''); }).join("<br>") : '<span class="muted">—</span>') +
+          (ex ? '<div class="small muted">' + ex + ' lot(s) périmé(s) écarté(s)</div>' : '') + '</td><td>' + status + '</td>' +
+          '<td style="text-align:right">' + (inv.closed ? '' : '<button class="btn ghost" data-act="pick" data-flow="C" data-id="' + a.id + '">' + (ls.length ? 'Ajouter un lot' : 'Compter') + '</button>') + '</td></tr>';
+      }).join("") + '</tbody></table></div></div></section>';
+
+    if (inv.closed) {
+      h += '<p class="notice ok">Pièce clôturée : le stock de départ de ' + ROOMS[st.room].name + ' est figé dans la démo. Passez à la pièce suivante.</p>';
+      return h;
+    }
+    if (!st.sel) {
+      h += '<section class="card"><div class="bd">' + scanBox("C", "Identifier l'article sur l'étagère") + '</div></section>';
+    } else {
+      var a = art(st.sel), f = st.form;
+      var stt = a.exp && f.expiry ? expStatus(f.expiry, st.room) : null;
+      h += '<section class="card"><div class="hd"><h3>Compter : ' + esc(label(a)) + '</h3><span class="spacer"></span><button class="btn ghost" data-act="c-back">← Autre article</button></div><div class="bd">' +
+        '<form data-form="c-count" class="stack" autocomplete="off"><div class="grid-form">' +
+        '<label class="f">Quantité présente<input type="number" min="0" step="1" id="c-qty" data-input="c" data-k="qty" value="' + esc(f.qty) + '"></label>' +
+        (a.exp ? '<label class="f">Date de péremption de ce lot<input type="date" id="c-exp" data-input="c" data-k="expiry" value="' + esc(f.expiry) + '"></label>'
+               : '<div class="f"><span class="small" style="font-weight:600;color:var(--ink-2)">Péremption</span><div style="height:34px;display:flex;align-items:center">' + badge(null, null, true) + '</div></div>') +
+        '<label class="f">Si périmé : motif <span class="opt">trace de perte</span><select data-input="c" data-k="reason" id="c-reason"' + (stt === "expired" ? '' : ' disabled') + '>' +
+        ['Périmé : à détruire', 'Périmé : retour fournisseur', 'Autre (préciser à l\'oral)'].map(function (r) { return '<option' + (f.reason === r ? ' selected' : '') + '>' + r + '</option>'; }).join("") + '</select></label>' +
+        '<label class="f">N° de lot <span class="opt">facultatif · à valider</span><input type="text" data-input="c" data-k="lot" value="' + esc(f.lot) + '"></label>' +
+        '</div><div id="c-exp-state">' + cExpState(a) + '</div>' +
+        '<div class="row"><button class="btn primary big" type="submit" id="c-submit">' + (stt === "expired" ? 'Exclure ce lot périmé' : 'Pointer ce lot') + '</button>' +
+        '<span class="small muted">Plusieurs dates de péremption ? Pointez un lot, puis « Ajouter un lot ».</span></div></form></div></section>';
+    }
+    h += '<div class="row"><button class="btn big" data-act="c-close"' + (p.done ? '' : ' disabled') + '>Clôturer la pièce ' + ROOMS[st.room].name + '</button>' +
+      '<span class="small muted">Remplace le stock de départ de la pièce par le comptage (démo).</span></div>';
+    return h;
+  }
+  function cArticles(room) {
+    var ids = {}; S.C.inv[room].lines.forEach(function (l) { ids[l.articleId] = 1; });
+    return catalogue.filter(function (a) { return a.room === room || ids[a.id]; });
+  }
+  function cProgress(room) {
+    var list = cArticles(room), inv = S.C.inv[room];
+    var done = list.filter(function (a) { return inv.lines.some(function (l) { return l.articleId === a.id; }); }).length;
+    return { done: done, total: list.length };
+  }
+  function cExpState(a) {
+    var f = S.C.form;
+    if (!a.exp) return '<p class="small muted">Article sans péremption : seule la quantité compte.</p>';
+    if (!f.expiry) return '<p class="small muted">Saisir la date lue sur l\'emballage.</p>';
+    var st = expStatus(f.expiry, S.C.room);
+    if (st === "expired") return '<p class="notice err">Déjà périmé : ce lot ne sera pas saisi dans le stock de départ. Il est noté comme écarté, avec son motif.</p>';
+    if (st === "soon") return '<p class="notice warn">Péremption proche : le lot entre en stock avec un badge d\'alerte.</p>';
+    return '<p class="small muted">' + badge(f.expiry, S.C.room) + ' Péremption au ' + fr(f.expiry) + '.</p>';
+  }
+  function pickC(id) {
+    S.C.sel = id; S.C.form = { qty: "", expiry: "", lot: "", reason: "Périmé : à détruire" };
+    render(); focusLater("#c-qty");
+  }
+  function countC() {
+    var a = art(S.C.sel), f = S.C.form;
+    if (f.qty === "" || +f.qty < 0) { focusLater("#c-qty"); return; }
+    if (a.exp && !f.expiry) { focusLater("#c-exp"); return; }
+    var excluded = a.exp && expStatus(f.expiry, S.C.room) === "expired";
+    S.C.inv[S.C.room].lines.push({ id: nid("c"), articleId: a.id, qty: +f.qty, expiry: a.exp ? f.expiry : null, lot: f.lot, excluded: excluded, reason: excluded ? f.reason : "" });
+    addLog("C", (excluded ? "Exclu (périmé) " : "Pointé ") + f.qty + " × " + label(a));
+    toast(excluded ? "Lot périmé exclu du stock de départ : " + f.qty + " × " + label(a) + "." : "Pointé : " + f.qty + " × " + label(a) + ".");
+    S.C.sel = null; S.C.form = null;
+    render(); focusLater("#scan-C");
+  }
+  function closeC() {
+    var r = S.C.room, inv = S.C.inv[r];
+    stock = stock.filter(function (l) { return l.room !== r; });
+    var kept = 0, ex = 0;
+    inv.lines.forEach(function (l) {
+      if (l.excluded) { ex += l.qty; return; }
+      if (l.qty > 0) stock.push({ id: nid("l"), articleId: l.articleId, room: r, qty: l.qty, entry: TODAY_ISO, expiry: l.expiry, lot: l.lot, src: "C" });
+      kept += l.qty;
+    });
+    inv.closed = true;
+    addLog("C", ROOMS[r].name + " clôturée : " + kept + " unité(s) en stock de départ, " + ex + " périmée(s) écartée(s)");
+    toast(ROOMS[r].name + " clôturée : stock de départ figé (" + kept + " unités, " + ex + " périmées écartées).");
+    render();
+  }
+
+  /* ---------- Comparer ---------- */
+  function viewCmp() {
+    var rows = [
+      ["Usage", "Petites livraisons régulières (pharmacie, consommables)", "Livraisons multi-références (papeterie, grosses commandes)", "Une fois, à l'inventaire de fin 2026"],
+      ["Étapes", "Pièce → scan → vérifier → quantité/péremption → ranger", "Créer réception → lignes → corriger → contrôler → valider", "Pièce → identifier → compter → écarter périmés → clôturer"],
+      ["Rapidité perçue (à mesurer en essai)", "Très rapide par article", "Rapide, plus un contrôle final", "Dépend du comptage"],
+      ["Risque d'oubli", "Faible si le poste est près de la réserve", "Brouillon non validé = stock pas à jour", "Pièce non clôturée"],
+      ["Vue d'ensemble de la livraison", "Non", "Oui, comparable au bon de livraison", "Par pièce"],
+      ["Correction", "Annuler la dernière entrée", "Ligne par ligne, sans tout recommencer", "Ligne par ligne"],
+      ["Champs saisis", "Quantité, péremption si applicable", "Quantité et péremption par ligne", "Quantité, péremption, motif si périmé"],
+      ["Limites", "Poste accessible pendant le rangement ; lent pour 30 références", "Écran plus riche ; tentation de saisir plus tard", "Temps sur site ; dédoublonner l'ancien Excel"]
+    ];
+    var qs = [
+      "Numéro de lot : absent, facultatif, ou obligatoire pour la pharmacie ?",
+      "Délai d'alerte de 3 mois pour médicaments/vaccins : convient-il ? Faut-il une alerte pour les consommables qui périment ?",
+      "Alertes : uniquement dans l'outil, ou aussi un e-mail récapitulatif (à qui, à quelle fréquence) ?",
+      "Le poste fixe est-il dans la réserve ? Faut-il un lecteur sans fil ? Modèle de lecteur USB à confirmer.",
+      "Tous les produits ont-ils un code-barres lisible ? Sinon, étiquettes internes ?",
+      "Réception B : référence du bon de livraison utile ? Que faire d'un brouillon non validé (rappel) ?",
+      "Inventaire C : reprend-on la liste d'articles de l'ancien Excel ? Garde-t-on la trace des périmés écartés ?",
+      "Faut-il identifier la personne qui saisit (traçabilité) ?",
+      "Sorties de stock et pertes : même simplicité de saisie (hors maquette, à cadrer ensuite)."
+    ];
+    return intro("cmp", "Comparer les trois parcours", "Les trois parcours partagent le même modèle : un article (désignation + format) et des entrées (pièce, quantité, date d'entrée, péremption si applicable). Le choix peut donc se faire par pièce ou par type de livraison.") +
+      '<section class="card reco"><div class="bd stack"><h3>Recommandation provisoire, à tester avec Leila Dizi</h3>' +
+      '<p>Hybride : <b>A</b> pour les petites livraisons régulières, <b>B</b> pour les livraisons groupées, <b>C</b> une seule fois pour l\'inventaire initial. ' +
+      'Ce n\'est pas une décision : à confirmer après essai sur de vraies livraisons, en comparant A et B sur la rapidité et le risque d\'oubli.</p></div></section>' +
+      '<section class="card"><div class="table-wrap"><table class="cmp"><thead><tr><th></th><th>A. Scanner et ranger</th><th>B. Réception groupée</th><th>C. Inventaire initial</th></tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr><th scope="row" style="text-transform:none;letter-spacing:0;font-size:12.5px">' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td><td>' + esc(r[3]) + '</td></tr>'; }).join("") +
+      '</tbody></table></div></section>' +
+      '<section class="card"><div class="hd"><h3>Questions à trancher en atelier</h3></div><div class="bd"><ol class="q">' + qs.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join("") + '</ol></div></section>' +
+      '<section class="card"><div class="hd"><h3>Hors périmètre phase 1</h3></div><div class="bd small">Cabinets individuels (phase 2) · Mediway (aucun connecteur, import ni synchronisation) · Odoo (écarté) · Slack/Teams · application mobile ou tablette prioritaire.</div></section>';
+  }
+
+  /* ---------- Vues communes ---------- */
+  function intro(k, title, text) {
+    return '<div class="intro"><div class="stack" style="--g:6px"><h2>' + (k !== "cmp" ? k + '. ' : '') + esc(title) + '</h2><p>' + esc(text) + '</p></div>' +
+      (k === "A" || k === "B" || k === "C" ? '<p class="hyp" style="max-width:300px"><b>Hypothèse à confirmer :</b> lecteur USB qui saisit comme un clavier. Le scan préremplit la référence ; la péremption reste saisie par la personne.</p>' : '') + '</div>';
+  }
+  function stepper(steps, cur) {
+    return '<ol class="steps" aria-label="Étapes">' + steps.map(function (s, i) {
+      return '<li class="' + (i < cur ? "done" : i === cur ? "on" : "") + '"' + (i === cur ? ' aria-current="step"' : '') + '><b>' + (i < cur ? "✓ " : "") + 'Étape ' + (i + 1) + '</b>' + esc(s) + '</li>';
+    }).join("") + '</ol>';
+  }
+  function lotById(id) { for (var i = 0; i < stock.length; i++) if (stock[i].id === id) return stock[i]; return null; }
+  function qtyIn(aid, room) { return stock.filter(function (l) { return l.articleId === aid && l.room === room; }).reduce(function (s, l) { return s + l.qty; }, 0); }
+
+  function sideRoom() {
+    if (S.flow === "A") return S.A.room;
+    if (S.flow === "B") return S.B.rec && S.B.rec.status === "draft" ? S.B.rec.room : S.B.room;
+    if (S.flow === "C") return S.C.room;
+    return null;
+  }
+  function renderSide() {
+    var room = sideRoom();
+    var rooms = room ? [room] : ROOM_IDS;
+    var h = '<section class="card"><div class="hd"><h3>Stock de la démo</h3><span class="spacer"></span><span class="small muted">' + (room ? ROOMS[room].name : "toutes pièces") + '</span></div>' +
+      '<div class="table-wrap"><table id="stock-table"><thead><tr><th>Article / entrée</th><th class="num">Qté</th><th>Péremption</th></tr></thead><tbody>';
+    var any = false;
+    rooms.forEach(function (r) {
+      var ls = stock.filter(function (l) { return l.room === r; }).sort(function (x, y) { return (x.expiry || "9") < (y.expiry || "9") ? -1 : 1; });
+      if (!room) h += '<tr><td colspan="3" class="small" style="background:#fafbfc;font-weight:650">' + ROOMS[r].name + '</td></tr>';
+      ls.forEach(function (l) {
+        any = true; var a = art(l.articleId);
+        h += '<tr data-lot="' + l.id + '"><td>' + esc(a.name) + '<div class="small muted">' + esc(a.format) + ' · entrée ' + fr(l.entry) + (l.lot ? ' · lot ' + esc(l.lot) : '') + ' · ' + esc(l.src) + '</div></td>' +
+          '<td class="num">' + l.qty + '</td><td>' + (a.exp ? fr(l.expiry) + '<br>' : '') + badge(l.expiry, l.room, !a.exp) + '</td></tr>';
+      });
+    });
+    if (!any) h += '<tr><td colspan="3" class="small muted">Aucune entrée.</td></tr>';
+    h += '</tbody></table></div><div class="bd small muted" style="padding-top:8px">Une ligne = une entrée (réception d\'un lot). Un même article peut avoir plusieurs entrées et plusieurs péremptions.</div></section>';
+
+    h += '<section class="card"><div class="hd"><h3>Réglages proposés</h3><span class="spacer"></span><span class="badge b-soon">À valider</span></div><div class="bd">' +
+      ROOM_IDS.map(function (r) {
+        return '<div class="setting"><label for="set-' + r + '">Alerte péremption · ' + ROOMS[r].name + '</label><select id="set-' + r + '" data-input="setting" data-room="' + r + '">' +
+          [[0, "Aucune"], [1, "1 mois avant"], [2, "2 mois avant"], [3, "3 mois avant"], [6, "6 mois avant"]].map(function (o) { return '<option value="' + o[0] + '"' + (settings.alert[r] === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join("") + '</select></div>';
+      }).join("") +
+      '<p class="small muted" style="margin-top:6px">3 mois pour médicaments/vaccins : proposition issue du call, pas une règle réglementaire. Alerte visuelle dans l\'outil ; e-mail à étudier.</p></div></section>';
+
+    h += '<section class="card"><div class="hd"><h3>Journal de la démo</h3><span class="spacer"></span><span class="small muted">en mémoire</span></div><div class="bd">' +
+      (log.length ? '<ul class="log" id="log">' + log.slice(0, 10).map(function (e) { return '<li><span class="tm">' + e.tm + '</span><span><b>' + (e.flow === "cmp" ? "" : e.flow + " · ") + '</b>' + esc(e.text) + '</span></li>'; }).join("") + '</ul>'
+        : '<p class="small muted">Les actions de la démo s\'affichent ici.</p>') + '</div></section>';
+    $("#side").innerHTML = h;
+  }
+
+  function render() {
+    document.querySelectorAll(".flows [role=tab]").forEach(function (b) {
+      var on = b.getAttribute("data-flow") === S.flow; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1;
+    });
+    var v = $("#view");
+    v.innerHTML = S.flow === "A" ? viewA() : S.flow === "B" ? viewB() : S.flow === "C" ? viewC() : viewCmp();
+    renderSide();
+  }
+
+  /* ---------- Simulation du lecteur USB (« clavier ») ---------- */
+  function simulateScan(flow, code) {
+    var input = $("#scan-" + flow);
+    if (!input) { onCode(flow, code); return; }
+    input.focus(); input.value = "";
+    var i = 0;
+    var t = setInterval(function () {
+      input.value += code.charAt(i); i++;
+      if (i >= code.length) { clearInterval(t); setTimeout(function () { onCode(flow, input.value); }, 60); }
+    }, 14);
+  }
+
+  /* ---------- Événements ---------- */
+  document.addEventListener("click", function (e) {
+    var tab = e.target.closest(".flows [role=tab]");
+    if (tab) { S.flow = tab.getAttribute("data-flow"); render(); var f = $("#scan-" + S.flow); if (f) f.focus(); return; }
+    var b = e.target.closest("[data-act]"); if (!b || b.disabled) return;
+    var act = b.getAttribute("data-act"), flow = b.getAttribute("data-flow");
+    switch (act) {
+      case "room":
+        var r = b.getAttribute("data-room");
+        if (flow === "A") { S.A.room = r; if (S.A.phase !== "form") S.A.phase = "scan"; render(); focusLater(S.A.phase === "scan" ? "#scan-A" : "#a-qty"); }
+        if (flow === "B") { S.B.room = r; render(); }
+        if (flow === "C") { S.C.room = r; S.C.sel = null; S.C.form = null; S.C.unknown = null; render(); focusLater("#scan-C"); }
+        break;
+      case "mode": S[flow].manual = b.getAttribute("data-manual") === "1"; render(); focusLater(S[flow].manual ? "#search-" + flow : "#scan-" + flow); break;
+      case "sim": simulateScan(flow, b.getAttribute("data-code")); break;
+      case "pick": onPick(flow, b.getAttribute("data-id")); break;
+      case "newart": S[flow].unknown = { code: "" }; render(); focusLater("#new-name-" + flow); break;
+      case "cancelnew": S[flow].unknown = null; render(); break;
+      case "a-back": S.A.phase = "scan"; S.A.form = null; render(); focusLater("#scan-A"); break;
+      case "a-undo":
+        var e0 = S.A.last.shift(); if (!e0) break;
+        var l0 = lotById(e0.lotId); stock = stock.filter(function (l) { return l.id !== e0.lotId; });
+        if (l0) addLog("A", "Annulé : " + l0.qty + " × " + label(art(l0.articleId)));
+        toast("Dernière entrée annulée."); render(); break;
+      case "b-create":
+        S.B.rec = { id: "REC-DÉMO-" + String(S.B.done.length + 1).padStart(3, "0"), room: S.B.room, date: $("#b-date").value || TODAY_ISO, bl: $("#b-bl").value.trim(), lines: [], status: "draft" };
+        addLog("B", "Réception " + S.B.rec.id + " créée (" + ROOMS[S.B.room].name + ")");
+        render(); focusLater("#scan-B"); break;
+      case "b-cancel": addLog("B", "Brouillon " + S.B.rec.id + " abandonné"); S.B.rec = null; render(); break;
+      case "b-del":
+        var id = b.getAttribute("data-id"), lnD = S.B.rec.lines.filter(function (l) { return l.id === id; })[0];
+        S.B.rec.lines = S.B.rec.lines.filter(function (l) { return l.id !== id; });
+        addLog("B", "Ligne supprimée : " + label(art(lnD.articleId))); render(); break;
+      case "b-merge":
+        var lines = S.B.rec.lines, m = lines.filter(function (l) { return l.id === b.getAttribute("data-id"); })[0];
+        var target = lines.filter(function (o) { return o !== m && o.articleId === m.articleId && (o.expiry || "") === (m.expiry || "") && lines.indexOf(o) < lines.indexOf(m); })[0];
+        target.qty = String((+target.qty || 0) + (+m.qty || 0));
+        S.B.rec.lines = lines.filter(function (l) { return l !== m; });
+        addLog("B", "Doublon cumulé : " + label(art(m.articleId)) + " → " + target.qty);
+        toast("Lignes cumulées : " + target.qty + " × " + label(art(m.articleId)) + ".", "Démo : rien n'est enregistré."); render(); break;
+      case "b-validate":
+        var rec = S.B.rec, units = 0;
+        rec.lines.forEach(function (ln) { var a = art(ln.articleId); units += +ln.qty; stock.push({ id: nid("l"), articleId: ln.articleId, room: rec.room, qty: +ln.qty, entry: rec.date, expiry: a.exp ? ln.expiry : null, lot: ln.lot, src: "B · " + rec.id }); });
+        S.B.done.unshift({ id: rec.id, room: rec.room, date: rec.date, n: rec.lines.length, units: units });
+        addLog("B", rec.id + " validée : " + rec.lines.length + " ligne(s), " + units + " unité(s) → " + ROOMS[rec.room].name);
+        toast("Réception " + rec.id + " validée : " + rec.lines.length + " ligne(s), " + units + " unités rangées en " + ROOMS[rec.room].name + ".");
+        rec.status = "validated"; S.B.rec = null; render(); break;
+      case "c-back": S.C.sel = null; S.C.form = null; render(); focusLater("#scan-C"); break;
+      case "c-close": closeC(); break;
+    }
+  });
+
+  document.addEventListener("submit", function (e) {
+    var f = e.target, kind = f.getAttribute("data-form"), flow = f.getAttribute("data-flow");
+    e.preventDefault();
+    if (kind === "scan") { var inp = f.querySelector("input"); onCode(flow, inp.value); }
+    if (kind === "a-confirm") confirmA();
+    if (kind === "c-count") countC();
+    if (kind === "newart") {
+      var name = f.elements.name.value.trim(), format = f.elements.format.value.trim();
+      if (!name || !format) return;
+      var room = flow === "B" ? S.B.rec.room : S[flow].room;
+      var a = { id: nid("new"), code: S[flow].unknown.code || "", name: name, format: format, room: room, exp: f.elements.exp.value === "1" };
+      catalogue.push(a);
+      addLog(flow, "Article créé : " + label(a) + (a.code ? " (code " + a.code.slice(-4) + ")" : ""));
+      toast("Fiche article minimale créée : " + label(a) + ".", "Démo : rien n'est enregistré.");
+      onPick(flow, a.id);
+    }
+  });
+
+  document.addEventListener("input", function (e) {
+    var el = e.target, kind = el.getAttribute("data-input"); if (!kind) return;
+    var k = el.getAttribute("data-k");
+    if (kind === "search") {
+      var flow = el.getAttribute("data-flow"); S[flow].search = el.value;
+      var q = el.value.trim().toLowerCase();
+      $("#results-" + flow).innerHTML = resultsHtml(flow, catalogue.filter(function (a) { return !q || label(a).toLowerCase().indexOf(q) >= 0; }));
+    }
+    if (kind === "a") {
+      S.A.form[k] = el.value; var a = art(S.A.form.articleId), f = S.A.form;
+      $("#a-exp-state").innerHTML = aExpState(a);
+      var bad = !f.qty || +f.qty <= 0 || (a.exp && !f.expiry);
+      $("#a-submit").disabled = bad;
+      if (k === "qty" || k === "expiry") el.setAttribute("aria-invalid", !el.value);
+    }
+    if (kind === "b") {
+      var ln = S.B.rec.lines.filter(function (l) { return l.id === el.getAttribute("data-id"); })[0];
+      ln[k] = el.value; refreshB(ln.id);
+    }
+    if (kind === "c") {
+      S.C.form[k] = el.value;
+      if (k === "expiry") {
+        var ac = art(S.C.sel), exp = ac.exp && S.C.form.expiry && expStatus(S.C.form.expiry, S.C.room) === "expired";
+        $("#c-exp-state").innerHTML = cExpState(ac);
+        $("#c-reason").disabled = !exp;
+        $("#c-submit").textContent = exp ? "Exclure ce lot périmé" : "Pointer ce lot";
+      }
+    }
+  });
+  document.addEventListener("change", function (e) {
+    var el = e.target;
+    if (el.getAttribute("data-input") === "setting") {
+      settings.alert[el.getAttribute("data-room")] = +el.value;
+      addLog(S.flow, "Réglage alerte " + ROOMS[el.getAttribute("data-room")].name + " : " + (+el.value ? el.value + " mois" : "aucune"));
+      render(); focusLater("#set-" + el.getAttribute("data-room"));
+    }
+  });
+  // Flèches gauche/droite dans les onglets
+  $(".flows").addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    var tabs = Array.prototype.slice.call(document.querySelectorAll(".flows [role=tab]"));
+    var i = tabs.indexOf(document.activeElement); if (i < 0) return;
+    var n = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+    n.click(); n.focus();
+  });
+
+  $("#today").textContent = "Aujourd'hui (démo) : " + fr(TODAY_ISO);
+  render();
+
+  // Accès pour les tests automatisés de la maquette
+  window.__clmoDemo = { state: S, stock: function () { return stock; }, log: function () { return log; } };
+})();
+</script>
+</body>
+</html>

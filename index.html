@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLMO — Gestion des stocks médicaux</title>
+<style>
+  :root { --bg:#f7f8fa; --fg:#1b1f24; --muted:#5b6470; --card:#fff; --line:#e3e6ea; --accent:#2457d6; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --fg:#e8eaed; --muted:#9aa3ad; --card:#1d2126; --line:#2c3238; --accent:#7aa2ff; } }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:48px 16px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; }
+  p.lead { color:var(--muted); margin:0 0 32px; }
+  a.card { display:block; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:12px; color:inherit; text-decoration:none; }
+  a.card:hover { border-color:var(--accent); }
+  a.card strong { color:var(--accent); display:block; margin-bottom:4px; }
+  a.card span { color:var(--muted); font-size:.95rem; }
+  footer { color:var(--muted); font-size:.85rem; margin-top:32px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>CLMO — Gestion des stocks médicaux</h1>
+  <p class="lead">Avant-projet : suivre ce qui entre et ce qui sort des réserves (Pharmacie, Consommables, Papeterie).</p>
+  <a class="card" href="prototype/stock-entry-workflows.html">
+    <strong>Maquette interactive — dernière version</strong>
+    <span>Une liste par réserve : « + Entrée » ou « − Sortie » sur la ligne de l'article</span>
+  </a>
+  <a class="card" href="prototype/stock-entry-workflows.html#sortie">
+    <strong>Écran de sortie — tablette</strong>
+    <span>Devant l'armoire : prénom, produit, quantité, pour qui, valider</span>
+  </a>
+  <a class="card" href="versions/">
+    <strong>Historique des versions</strong>
+    <span>Les versions successives de la maquette (V1 à V11)</span>
+  </a>
+  <footer>Maquette de discussion : données fictives, rien n'est enregistré.</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+id: clmo
+name: CLMO — Gestion des stocks médicaux
+pitch: outil sur mesure de gestion des stocks des réserves centrales d'un centre médical (entrées, sorties, péremptions, pertes), saisie sur poste fixe
+owner: Elie (avec Arnaud Lavesque et Étienne Lavigne)
+client_contact: Leila Dizi (responsable opérationnelle)
+status_note: avant-projet — choix du processus d'entrée des stocks, puis devis / cahier des charges
+phase_1: [Pharmacie, Consommables, Papeterie]   # réserves centrales ; cabinets individuels = phase 2
+out_of_scope: [Odoo, Mediway, Slack, Teams, connecteur, import automatique]
+docs:
+  context: context.md
+  workflows: workflows.md
+  prototype: prototype/stock-entry-workflows.html
+domains:
+  dev: { repo: "", repo_local: "", rules: "aucun repo encore ; prototype HTML autonome dans projects/clmo/prototype/" }

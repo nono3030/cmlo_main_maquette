@@ -1,0 +1,589 @@
+{
+ "results": [
+  [
+   "aucun stockage persistant",
+   true,
+   ""
+  ],
+  [
+   "A : prochaine étape = choisir la pièce",
+   true,
+   ""
+  ],
+  [
+   "A : focus sur le champ de scan après choix de pièce",
+   true,
+   "scan-A"
+  ],
+  [
+   "A : recherche « seringue 5 » trouve la seringue 5 ml",
+   true,
+   ""
+  ],
+  [
+   "A : recherche sans accent « demo » trouve les articles DÉMO",
+   true,
+   8
+  ],
+  [
+   "A : Entrée dans la recherche ouvre le premier résultat",
+   true,
+   ""
+  ],
+  [
+   "A : Échap revient au scan",
+   true,
+   ""
+  ],
+  [
+   "A : ↓ depuis la recherche va dans la liste",
+   true,
+   ""
+  ],
+  [
+   "A : bip → formulaire, focus quantité",
+   true,
+   "a-qty"
+  ],
+  [
+   "A : Entrée sur formulaire vide → erreurs visibles",
+   true,
+   ""
+  ],
+  [
+   "A : code-barres lu dans Quantité refusé avec message",
+   true,
+   ""
+  ],
+  [
+   "A : erreur quantité effacée dès que la valeur est valide",
+   true,
+   ""
+  ],
+  [
+   "A : date dépassée → alerte et bouton « Ne pas ranger »",
+   true,
+   ""
+  ],
+  [
+   "A : périmé refusé au rangement",
+   true,
+   ""
+  ],
+  [
+   "A : « Ne pas ranger » trace la ligne et revient au scan",
+   true,
+   ""
+  ],
+  [
+   "A : péremption proche signalée (non bloquante)",
+   true,
+   ""
+  ],
+  [
+   "A : rangement confirmé, retour au scan",
+   true,
+   ""
+  ],
+  [
+   "A : pièce inhabituelle signalée avec action",
+   true,
+   ""
+  ],
+  [
+   "A : changement de pièce garde l'article en cours",
+   true,
+   ""
+  ],
+  [
+   "A : date d'entrée future refusée",
+   true,
+   ""
+  ],
+  [
+   "A : entrée en Pharmacie enregistrée (démo)",
+   true,
+   ""
+  ],
+  [
+   "A : code inconnu → fiche minimale, focus désignation",
+   true,
+   "new-A-name"
+  ],
+  [
+   "A : péremption préremplie « Oui » en Pharmacie",
+   true,
+   ""
+  ],
+  [
+   "A : fiche vide → erreurs en ligne",
+   true,
+   ""
+  ],
+  [
+   "A : fiche créée puis formulaire de l'article",
+   true,
+   ""
+  ],
+  [
+   "A : annuler la dernière entrée",
+   true,
+   ""
+  ],
+  [
+   "A : pas de débordement horizontal (1440)",
+   true,
+   0
+  ],
+  [
+   "Finition : aucun libellé d'étape tronqué (1440)",
+   true,
+   0
+  ],
+  [
+   "Finition : noms des pièces alignés",
+   true,
+   [
+    195,
+    195,
+    195
+   ]
+  ],
+  [
+   "A : seconde entrée en Pharmacie (vaccin)",
+   true,
+   ""
+  ],
+  [
+   "A : la puce « Code inconnu » reste inconnue après création d'une fiche",
+   true,
+   ""
+  ],
+  [
+   "B : créer sans pièce → message",
+   true,
+   ""
+  ],
+  [
+   "B : brouillon créé, focus scan",
+   true,
+   ""
+  ],
+  [
+   "B : bip → ligne, focus quantité",
+   true,
+   "b-qty-r10"
+  ],
+  [
+   "B : Entrée sur la quantité (sans péremption) revient au scan",
+   true,
+   "scan-B"
+  ],
+  [
+   "B : doublon signalé avec « Cumuler »",
+   true,
+   ""
+  ],
+  [
+   "B : doublon cumulé",
+   true,
+   ""
+  ],
+  [
+   "B : quantité décimale signalée",
+   true,
+   ""
+  ],
+  [
+   "B : Entrée sur la quantité va à la date (article à péremption)",
+   true,
+   "b-exp-r12"
+  ],
+  [
+   "B : périmé bloquant + pièce inhabituelle signalée",
+   true,
+   ""
+  ],
+  [
+   "B : bouton Valider aria-disabled",
+   true,
+   ""
+  ],
+  [
+   "B : en-tête « À corriger » mis à jour en direct",
+   true,
+   ""
+  ],
+  [
+   "B : clic sur Valider bloqué → focus sur le champ fautif",
+   true,
+   "b-exp-r12"
+  ],
+  [
+   "B : validation → 2 entrées en stock, brouillon fermé",
+   true,
+   ""
+  ],
+  [
+   "B : abandon demande confirmation (focus « Non »)",
+   true,
+   ""
+  ],
+  [
+   "B : « Non » garde le brouillon",
+   true,
+   ""
+  ],
+  [
+   "B : brouillon visible depuis A (En attente + pastille onglet)",
+   true,
+   ""
+  ],
+  [
+   "B : « Reprendre » rouvre le brouillon",
+   true,
+   ""
+  ],
+  [
+   "B : abandon confirmé",
+   true,
+   ""
+  ],
+  [
+   "B : pas de débordement horizontal (1440)",
+   true,
+   0
+  ],
+  [
+   "C : pointer à vide → erreurs en ligne",
+   true,
+   ""
+  ],
+  [
+   "C : ligne pointée",
+   true,
+   ""
+  ],
+  [
+   "C : date dépassée → motif actif, étape « Écarter » courante",
+   true,
+   ""
+  ],
+  [
+   "C : ligne périmée écartée (pas dans le stock de départ)",
+   true,
+   ""
+  ],
+  [
+   "C : même date déjà pointée → information",
+   true,
+   ""
+  ],
+  [
+   "C : retirer une ligne pointée",
+   true,
+   ""
+  ],
+  [
+   "C : clôture → récapitulatif + confirmation (non compté signalé)",
+   true,
+   ""
+  ],
+  [
+   "C : pièce clôturée, stock de départ = comptage",
+   true,
+   ""
+  ],
+  [
+   "A : entrée remplacée par l'inventaire C affichée sans erreur",
+   true,
+   ""
+  ],
+  [
+   "C : pas de débordement horizontal (1440)",
+   true,
+   0
+  ],
+  [
+   "D : rappel « Piste à explorer — non validée » dans l'en-tête",
+   true,
+   ""
+  ],
+  [
+   "D : rappel et hypothèse en texte discret (ni bandeau ni encadré)",
+   true,
+   ""
+  ],
+  [
+   "D : colonne latérale masquée, zone principale pleine largeur",
+   true,
+   ""
+  ],
+  [
+   "D : pas de tableau « Réceptions validées » ni panneau de démo dans la vue",
+   true,
+   ""
+  ],
+  [
+   "D : 3 étapes seulement",
+   true,
+   ""
+  ],
+  [
+   "D : ni panneau d'exceptions, ni réglages de démo, ni scénario, ni indicateurs",
+   true,
+   ""
+  ],
+  [
+   "D : pièce choisie → focus sur le champ code ou nom",
+   true,
+   "scan-D"
+  ],
+  [
+   "D : simulateur de bips replié par défaut",
+   true,
+   ""
+  ],
+  [
+   "D : saisie et liste côte à côte (1440)",
+   true,
+   ""
+  ],
+  [
+   "D : bip → article choisi, focus quantité, date demandée",
+   true,
+   ""
+  ],
+  [
+   "D : formulaire d'ajout limité à quantité + date",
+   true,
+   ""
+  ],
+  [
+   "D : Ajouter à vide → erreurs en ligne, rien ajouté",
+   true,
+   ""
+  ],
+  [
+   "D : code-barres lu dans Quantité refusé",
+   true,
+   ""
+  ],
+  [
+   "D : date dépassée signalée",
+   true,
+   ""
+  ],
+  [
+   "D : produit périmé non ajouté",
+   true,
+   ""
+  ],
+  [
+   "D : Ajouter → ligne dans la liste, retour au champ code/nom",
+   true,
+   "scan-D"
+  ],
+  [
+   "D : taper un nom affiche les résultats",
+   true,
+   ""
+  ],
+  [
+   "D : Entrée choisit le résultat ; article sans péremption → pas de date",
+   true,
+   ""
+  ],
+  [
+   "D : pièce inhabituelle signalée (non bloquante)",
+   true,
+   ""
+  ],
+  [
+   "D : ligne ajoutée malgré la pièce inhabituelle, badge dans la liste",
+   true,
+   ""
+  ],
+  [
+   "D : aucun résultat → proposition de fiche courte",
+   true,
+   ""
+  ],
+  [
+   "D : code inconnu → fiche courte à 2 champs",
+   true,
+   ""
+  ],
+  [
+   "D : fiche vide → erreurs",
+   true,
+   ""
+  ],
+  [
+   "D : fiche créée → quantité, date demandée (Consommables)",
+   true,
+   ""
+  ],
+  [
+   "D : valider bloqué tant qu'un article est en cours",
+   true,
+   ""
+  ],
+  [
+   "D : retirer une ligne",
+   true,
+   ""
+  ],
+  [
+   "A : colonne latérale de nouveau visible (non-régression)",
+   true,
+   ""
+  ],
+  [
+   "D : liste non validée visible depuis A (En attente + pastille)",
+   true,
+   ""
+  ],
+  [
+   "D : « Reprendre » retrouve la liste",
+   true,
+   ""
+  ],
+  [
+   "D : pas de débordement horizontal (1440)",
+   true,
+   0
+  ],
+  [
+   "D : valider → 3 entrées en stock, liste vidée, « Fait »",
+   true,
+   ""
+  ],
+  [
+   "D : liste vide → validation sans effet",
+   true,
+   ""
+  ],
+  [
+   "Comparer : colonne D marquée « piste non validée » et hors recommandation",
+   true,
+   ""
+  ],
+  [
+   "Comparer : pas de débordement (1440)",
+   true,
+   0
+  ],
+  [
+   "Onglets : Début → A sélectionné et focalisé",
+   true,
+   ""
+  ],
+  [
+   "Onglets : ← boucle vers Comparer",
+   true,
+   ""
+  ],
+  [
+   "Accessibilité A : chaque champ/bouton a un nom",
+   true,
+   []
+  ],
+  [
+   "Accessibilité A : identifiants uniques",
+   true,
+   []
+  ],
+  [
+   "Accessibilité B : chaque champ/bouton a un nom",
+   true,
+   []
+  ],
+  [
+   "Accessibilité B : identifiants uniques",
+   true,
+   []
+  ],
+  [
+   "Accessibilité C : chaque champ/bouton a un nom",
+   true,
+   []
+  ],
+  [
+   "Accessibilité C : identifiants uniques",
+   true,
+   []
+  ],
+  [
+   "Accessibilité D : chaque champ/bouton a un nom",
+   true,
+   []
+  ],
+  [
+   "Accessibilité D : identifiants uniques",
+   true,
+   []
+  ],
+  [
+   "Accessibilité cmp : chaque champ/bouton a un nom",
+   true,
+   []
+  ],
+  [
+   "Accessibilité cmp : identifiants uniques",
+   true,
+   []
+  ],
+  [
+   "390 : les 5 onglets visibles sans défilement, cibles ≥ 44 px",
+   true,
+   ""
+  ],
+  [
+   "390 : fiche article inconnu sans débordement",
+   true,
+   0
+  ],
+  [
+   "390 : formulaire A sans débordement",
+   true,
+   0
+  ],
+  [
+   "390 : réception B sans débordement de page",
+   true,
+   0
+  ],
+  [
+   "390 : comptage C sans débordement",
+   true,
+   0
+  ],
+  [
+   "390 : D (liste + article en cours) sans débordement",
+   true,
+   0
+  ],
+  [
+   "390 : D sans colonne latérale",
+   true,
+   ""
+  ],
+  [
+   "390 : liste de D lisible sans défilement horizontal",
+   true,
+   0
+  ],
+  [
+   "390 : cibles tactiles ≥ 36 px dans D",
+   true,
+   []
+  ],
+  [
+   "390 : Comparer sans débordement de page",
+   true,
+   0
+  ]
+ ],
+ "errors": []
+}

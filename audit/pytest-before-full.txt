@@ -1,0 +1,53 @@
+........................................................................ [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 15%]
+........................................................................ [ 20%]
+........................................................................ [ 25%]
+........................................................................ [ 30%]
+........................................................................ [ 36%]
+........................................................................ [ 41%]
+........................................................................ [ 46%]
+........................................................................ [ 51%]
+........................................................................ [ 56%]
+........................................................................ [ 61%]
+........................................................................ [ 66%]
+........................................................................ [ 72%]
+........................................................................ [ 77%]
+........................................................................ [ 82%]
+........................................................................ [ 87%]
+........................................................................ [ 92%]
+........................................................................ [ 97%]
+....................F.........                                           [100%]
+=================================== FAILURES ===================================
+____________________ test_run_timeout_stops_the_whole_tree _____________________
+
+tmp_path = PosixPath('/private/var/folders/fb/jztzwbfd68792zw38fyv4gn00000gn/T/pytest-of-elie/pytest-686/test_run_timeout_stops_the_who0')
+
+    def test_run_timeout_stops_the_whole_tree(tmp_path):
+        """Délai dépassé : la commande ET ce qu'elle a lancé s'arrêtent (Chrome de Remotion : son propre groupe de
+        processus), sinon le rendu orphelin écrirait encore pendant la nouvelle tentative."""
+        flag = tmp_path / "orphelin"
+        child = (
+            "import subprocess, sys, time\n"
+            "code = 'import sys, time; time.sleep(1.5); open(sys.argv[1], \"w\").write(\"x\")'\n"
+            "subprocess.Popen([sys.executable, '-c', code, sys.argv[1] + '-enfant'])\n"
+            "subprocess.Popen([sys.executable, '-c', code, sys.argv[1] + '-detache'], start_new_session=True)\n"
+            "time.sleep(30)\n"
+        )
+        t0 = time.monotonic()
+        with pytest.raises(subprocess.TimeoutExpired):
+            video._run([sys.executable, "-c", child, str(flag)], timeout=0.8)
+        assert time.monotonic() - t0 < 8
+        time.sleep(2.2)
+>       assert not list(tmp_path.iterdir()), "un processus lancé a survécu au délai"
+E       AssertionError: un processus lancé a survécu au délai
+E       assert not [PosixPath('/private/var/folders/fb/jztzwbfd68792zw38fyv4gn00000gn/T/pytest-of-elie/pytest-686/test_run_timeout_stops_...lders/fb/jztzwbfd68792zw38fyv4gn00000gn/T/pytest-of-elie/pytest-686/test_run_timeout_stops_the_who0/orphelin-detache')]
+E        +  where [PosixPath('/private/var/folders/fb/jztzwbfd68792zw38fyv4gn00000gn/T/pytest-of-elie/pytest-686/test_run_timeout_stops_...lders/fb/jztzwbfd68792zw38fyv4gn00000gn/T/pytest-of-elie/pytest-686/test_run_timeout_stops_the_who0/orphelin-detache')] = list(<generator object Path.iterdir.<locals>.<genexpr> at 0x109b2ea70>)
+E        +    where <generator object Path.iterdir.<locals>.<genexpr> at 0x109b2ea70> = iterdir()
+E        +      where iterdir = PosixPath('/private/var/folders/fb/jztzwbfd68792zw38fyv4gn00000gn/T/pytest-of-elie/pytest-686/test_run_timeout_stops_the_who0').iterdir
+
+domains/prospection/tests/test_video.py:746: AssertionError
+=========================== short test summary info ============================
+FAILED domains/prospection/tests/test_video.py::test_run_timeout_stops_the_whole_tree
+1 failed, 1397 passed in 1017.30s (0:16:57)
+exit=1

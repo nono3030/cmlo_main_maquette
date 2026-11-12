@@ -1,0 +1,1560 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLMO · Entrée des stocks — maquette de discussion</title>
+<style>
+  :root {
+    --bg: #f2f4f7;
+    --panel: #ffffff;
+    --ink: #142030;
+    --ink-2: #3c4958;
+    --ink-3: #5a6573;
+    --line: #d3d9e0;
+    --line-2: #e5e9ee;
+    --accent: #1d4f7c;
+    --accent-2: #163e62;
+    --accent-soft: #e8eff7;
+    --accent-line: #c3d5e8;
+    --focus: #1d6fd1;
+    --red: #a11d17;   --red-bg: #fdeceb;   --red-line: #eeb2ac;   --red-bar: #c8463d;
+    --amber: #744400; --amber-bg: #fff4d9; --amber-line: #e6c47c; --amber-bar: #d39a2f;
+    --green: #1b5e34; --green-bg: #e7f4ec; --green-line: #9fd0ae; --green-bar: #2f8a50;
+    --grey: #475260;  --grey-bg: #edf0f3;  --grey-line: #d3d9df;  --grey-bar: #9aa5b1;
+    --violet: #4b3a8f; --violet-bg: #f3f0fc; --violet-line: #bfb3ea;
+    --radius: 8px;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 1px 3px rgba(16, 24, 40, .07);
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { font: 14px/1.5 var(--font); color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  h1, h2, h3, h4 { margin: 0; line-height: 1.25; }
+  h1 { font-size: 15px; font-weight: 700; }
+  h2 { font-size: 20px; font-weight: 700; letter-spacing: -.005em; }
+  h3 { font-size: 15px; font-weight: 650; }
+  h4 { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+  p { margin: 0; }
+  .muted { color: var(--ink-3); }
+  .small { font-size: 12.5px; }
+  .mono { font-family: var(--mono); font-size: 12.5px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  kbd { font-family: var(--mono); font-size: 11px; padding: 0 5px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; background: #fff; color: var(--ink-2); white-space: nowrap; }
+  .skip { position: absolute; left: 12px; top: -60px; z-index: 20; background: #fff; padding: 8px 12px; border-radius: 6px; box-shadow: var(--shadow); }
+  .skip:focus { top: 8px; }
+
+  /* Bandeaux */
+  .topbar { display: flex; align-items: center; gap: 14px; padding: 10px 24px; background: var(--ink); color: #fff; }
+  .topbar .where { color: #c3cdd8; font-size: 12.5px; }
+  .topbar .spacer { flex: 1; }
+  .topbar .date { font-size: 12.5px; color: #c3cdd8; }
+  .demo-banner { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; padding: 8px 24px; background: #fff4d9;
+    border-bottom: 1px solid #e6cf96; color: #4a3300; font-size: 13px; }
+  .demo-banner strong { font-weight: 700; }
+  .demo-banner .pill { border: 1px solid #c9a24a; border-radius: 99px; padding: 0 9px; font-weight: 650; background: #fff9ea; }
+
+  /* Sélecteur de parcours */
+  .flows { display: flex; gap: 2px; padding: 0 24px; background: var(--panel); border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .flows [role=tab] { position: relative; appearance: none; border: 0; background: none; padding: 11px 14px 9px; border-bottom: 3px solid transparent;
+    cursor: pointer; text-align: left; color: var(--ink-2); display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 9px; align-items: center; min-height: 58px; }
+  .flows [role=tab]:hover { color: var(--ink); background: #f7f8fa; }
+  .flows [role=tab][aria-selected=true] { color: var(--accent); border-bottom-color: var(--accent); }
+  .flows .k { grid-row: span 2; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; background: var(--grey-bg);
+    color: var(--ink-2); font-weight: 750; font-size: 12.5px; }
+  .flows [aria-selected=true] .k { background: var(--accent); color: #fff; }
+  .flows .t { font-weight: 650; white-space: nowrap; }
+  .flows .d { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+  .flows .tab-d .k { background: var(--violet-bg); color: var(--violet); border: 1.5px dashed var(--violet-line); }
+  .flows .tab-d .d { color: var(--violet); font-weight: 600; }
+  .flows .tab-d[aria-selected=true] { color: var(--violet); border-bottom-color: var(--violet); }
+  .flows .tab-d[aria-selected=true] .k { background: var(--violet); color: #fff; border-style: solid; border-color: var(--violet); }
+  .flows .sep { flex: none; width: 1px; background: var(--line); margin: 12px 6px; }
+  .flows .dot { position: absolute; top: 9px; right: 6px; width: 9px; height: 9px; border-radius: 50%; background: #c98200; box-shadow: 0 0 0 2px #fff; display: none; }
+  .flows [data-draft="1"] .dot { display: block; }
+
+  /* Mise en page */
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; padding: 20px 24px 56px; max-width: 1600px; margin: 0 auto; }
+  main { min-width: 0; container-type: inline-size; container-name: main; }
+  #view:focus { outline: none; }
+  #view > * + * { margin-top: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .card > .hd { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; padding: 12px 16px; border-bottom: 1px solid var(--line-2); }
+  .card > .bd { padding: 16px; }
+  .card > .ft { padding: 12px 16px; border-top: 1px solid var(--line-2); background: #fafbfc; border-radius: 0 0 var(--radius) var(--radius); }
+  .spacer { flex: 1; }
+  .stack > * + * { margin-top: 12px; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .grow { flex: 1; min-width: 0; }
+  h3.grow, .hd > .grow { flex: 1 1 220px; } /* un titre passe à la ligne plutôt que d'être écrasé par ses voisins */
+  .sno { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: var(--accent-soft);
+    color: var(--accent); font-size: 12px; font-weight: 750; margin-right: 8px; vertical-align: 1px; }
+
+  /* En-tête de parcours */
+  .fhead { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 24px; align-items: start; }
+  .fhead h2 { display: flex; align-items: center; gap: 10px; }
+  .fhead .fk { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 7px; background: var(--accent); color: #fff; font-size: 15px; }
+  .fhead .fk.d { background: var(--violet); }
+  .fhead .lead { color: var(--ink-2); max-width: 76ch; margin-top: 6px; }
+  .hyp { font-size: 12.5px; color: var(--ink-2); background: #fff; border: 1px solid var(--line); border-left: 3px solid #8a96a3; border-radius: 6px;
+    padding: 8px 11px; max-width: 330px; }
+  .hyp b { color: var(--ink); }
+  .fhead-wrap > * + * { margin-top: 14px; }
+  .next { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 12px; padding: 10px 14px; border-radius: var(--radius);
+    background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent-2); }
+  .next .lbl { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+  .next.ok { background: var(--green-bg); border-color: var(--green-line); color: #174f2c; }
+  .next.warn { background: var(--amber-bg); border-color: var(--amber-line); color: #5c3700; }
+  .next.err { background: var(--red-bg); border-color: var(--red-line); color: #7f1611; }
+
+  /* Étapes */
+  .steps { display: flex; list-style: none; margin: 0; padding: 0; }
+  .steps li { flex: 1 1 0; display: flex; align-items: center; gap: 8px; padding: 2px 8px 2px 0; font-size: 12.5px; color: var(--ink-3); min-width: 0; }
+  .steps li .n { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 750; font-size: 12px;
+    background: #fff; border: 1.5px solid #c2cad3; color: var(--ink-3); }
+  .steps li .l { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .steps li::after { content: ""; flex: 1 1 12px; height: 2px; min-width: 10px; background: var(--line); border-radius: 1px; }
+  .steps li:last-child::after { display: none; }
+  .steps li.done { color: var(--ink-2); }
+  .steps li.done .n { background: var(--green-bg); border-color: var(--green-line); color: var(--green); }
+  .steps li.done::after { background: var(--green-line); }
+  .steps li.on { color: var(--ink); font-weight: 650; }
+  .steps li.on .n { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 0 3px var(--accent-soft); }
+  .flow-d .steps li.on .n { background: var(--violet); border-color: var(--violet); box-shadow: 0 0 0 3px var(--violet-bg); }
+
+  /* Pièces */
+  .rooms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .room { appearance: none; position: relative; text-align: left; border: 1px solid var(--line); background: #fff; border-radius: var(--radius);
+    padding: 10px 12px 10px 40px; cursor: pointer; min-height: 58px; }
+  .room::before { content: ""; position: absolute; left: 13px; top: 14px; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #8a96a3; background: #fff; }
+  .room:hover { border-color: #9aa6b2; }
+  .room[aria-pressed=true] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+  .room[aria-pressed=true]::before { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 0 4px, #fff 4.5px); }
+  .room .n { display: block; font-weight: 650; }
+  .room .s { display: block; font-size: 12px; color: var(--ink-3); }
+
+  /* Formulaires */
+  .f { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); min-width: 0; margin: 0; padding: 0; border: 0; }
+  .f > label, .f > legend { display: block; padding: 0; }
+  .f .opt, .f .hint { font-weight: 400; color: var(--ink-3); }
+  .hint { font-size: 12px; color: var(--ink-3); font-weight: 400; }
+  .err-msg { font-size: 12.5px; font-weight: 600; color: var(--red); }
+  input[type=text], input[type=number], input[type=date], input[type=search], select {
+    height: 38px; padding: 0 10px; border: 1px solid #a9b4c0; border-radius: 6px; background: #fff; min-width: 0; width: 100%; }
+  input:focus, select:focus { outline: 3px solid rgba(29, 111, 209, .35); outline-offset: 0; border-color: var(--focus); }
+  input[aria-invalid=true] { border-color: var(--red); background: #fffafa; box-shadow: inset 0 0 0 1px var(--red); }
+  input[disabled] { background: #f1f3f5; color: var(--ink-3); }
+  input.scan { height: 50px; font-family: var(--mono); font-size: 18px; letter-spacing: .04em; padding-left: 46px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='16'%3E%3Cg fill='%235a6573'%3E%3Crect width='2' height='16'/%3E%3Crect x='3' width='1' height='16'/%3E%3Crect x='6' width='3' height='16'/%3E%3Crect x='10' width='1' height='16'/%3E%3Crect x='13' width='2' height='16'/%3E%3Crect x='16' width='1' height='16'/%3E%3Crect x='18' width='1' height='16'/%3E%3Crect x='20' width='2' height='16'/%3E%3C/g%3E%3C/svg%3E") no-repeat 14px center; }
+  .scanrow .inline { display: flex; gap: 10px; }
+  .scanrow .inline input { flex: 1; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 14px; align-items: start; }
+  .fields .f-act { align-self: end; }
+  .radios { display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+  .radios legend { width: 100%; margin-bottom: 4px; }
+  .radios label { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; min-height: 30px; cursor: pointer; }
+  .radios input { width: 17px; height: 17px; margin: 0; accent-color: var(--accent); }
+
+  /* Boutons */
+  .btn { appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 6px;
+    border: 1px solid #9faab6; background: #fff; cursor: pointer; font-weight: 600; white-space: nowrap; color: var(--ink); }
+  .btn:hover { background: #f3f5f7; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-2); }
+  .btn.big { height: 46px; padding: 0 20px; font-size: 14.5px; }
+  .btn.sm { height: 30px; padding: 0 10px; font-size: 12.5px; }
+  .btn.ghost { border-color: transparent; background: none; color: var(--accent); padding: 0 9px; }
+  .btn.ghost:hover { background: var(--accent-soft); }
+  .btn.danger { color: var(--red); }
+  .btn.ghost.danger:hover { background: var(--red-bg); }
+  .btn.danger-solid { background: var(--red); border-color: var(--red); color: #fff; }
+  .btn.danger-solid:hover { background: #861812; }
+  .btn.wide { width: 100%; }
+  .btn[disabled], .btn[disabled]:hover, .btn[aria-disabled=true], .btn[aria-disabled=true]:hover { background: #e9edf1; border-color: #cfd6dd; color: #4f5a67; cursor: not-allowed; }
+  .seg { display: inline-flex; border: 1px solid #9faab6; border-radius: 6px; overflow: hidden; background: #fff; }
+  .seg button { appearance: none; border: 0; background: none; padding: 0 12px; height: 32px; cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+  .seg button + button { border-left: 1px solid #c9d0d8; }
+  .seg button[aria-pressed=true] { background: var(--ink); color: #fff; }
+  .seg button:focus-visible { outline-offset: -3px; }
+
+  /* Simulation du lecteur */
+  .simbox { border-top: 1px dashed var(--line); padding-top: 10px; }
+  .simbox .cap { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-3); margin-bottom: 6px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { appearance: none; border: 1px dashed #94a0ad; background: #fafbfc; border-radius: 6px; padding: 3px 9px; font-size: 12px; cursor: pointer;
+    color: var(--ink-2); min-height: 28px; text-align: left; }
+  .chip:hover { border-style: solid; color: var(--ink); background: #fff; }
+  .chip .mono { font-size: 11.5px; color: var(--ink-3); }
+  .chip.unknown { border-color: #c79a3c; background: #fffaf0; }
+</style>
+<style>
+  /* Article identifié */
+  .article { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; padding: 14px 16px; border: 1px solid var(--line);
+    border-radius: var(--radius); background: linear-gradient(#fbfcfd, #f5f7f9); }
+  .article .name { font-size: 17px; font-weight: 700; }
+  .article .meta { color: var(--ink-2); font-size: 13px; }
+  .article .qty { text-align: right; }
+  .article .qty b { font-size: 22px; font-variant-numeric: tabular-nums; }
+
+  /* Messages */
+  .notice { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 10px 12px; border-radius: var(--radius); font-size: 13px; border: 1px solid; }
+  .notice > span:first-child { flex: 1 1 260px; }
+  .notice .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .notice.warn { background: var(--amber-bg); border-color: var(--amber-line); color: #5c3700; }
+  .notice.err { background: var(--red-bg); border-color: var(--red-line); color: #7f1611; }
+  .notice.info { background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent-2); }
+  .notice.ok { background: var(--green-bg); border-color: var(--green-line); color: #174f2c; }
+  form.notice { display: block; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 0 8px; border-radius: 99px; font-size: 11.5px; font-weight: 650; line-height: 20px;
+    white-space: nowrap; border: 1px solid transparent; vertical-align: middle; }
+  .b-expired, .b-err { background: var(--red-bg); color: var(--red); border-color: var(--red-line); }
+  .b-soon, .b-warn { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-line); }
+  .b-ok { background: var(--green-bg); color: var(--green); border-color: var(--green-line); }
+  .b-none { background: var(--grey-bg); color: var(--grey); border-color: var(--grey-line); }
+  .b-info { background: var(--accent-soft); color: var(--accent-2); border-color: var(--accent-line); }
+  .b-piste { background: var(--violet-bg); color: var(--violet); border: 1px dashed var(--violet-line); }
+
+  /* Tableaux */
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line-2); vertical-align: middle; }
+  thead th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-3); font-weight: 650; background: #f8f9fb; white-space: nowrap; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.dup td { background: #fffaf0; }
+  tr.bad td { background: #fff6f5; }
+  tr.bad td:first-child { box-shadow: inset 3px 0 0 var(--red-bar); }
+  tr.dup td:first-child { box-shadow: inset 3px 0 0 var(--amber-bar); }
+  tr.off td { color: var(--ink-3); }
+  tr.off .nm { text-decoration: line-through; }
+  tr.sel td { background: var(--accent-soft); }
+  td input[type=number] { width: 92px; }
+  td input[type=date] { width: 160px; }
+  td input[type=text] { width: 120px; }
+  td .state { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+  .table-wrap { position: relative; overflow-x: auto; } /* positionné : les textes sr-only des en-têtes restent rognés */
+
+  /* Récapitulatifs */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 8px; }
+  .kpi { border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 11px; background: #fbfcfd; }
+  .kpi .v { display: block; font-size: 21px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .kpi .k { display: block; font-size: 12px; color: var(--ink-3); }
+  .kpi.err { border-color: var(--red-line); background: var(--red-bg); } .kpi.err .v { color: var(--red); }
+  .kpi.warn { border-color: var(--amber-line); background: var(--amber-bg); } .kpi.warn .v { color: var(--amber); }
+  .kpi.ok .v { color: var(--green); }
+  .progress { display: flex; height: 8px; background: var(--line-2); border-radius: 99px; overflow: hidden; }
+  .progress i { display: block; height: 100%; background: var(--accent); }
+
+  /* Panneau latéral */
+  .side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .side table th, .side table td { padding: 6px 8px; font-size: 12.5px; }
+  .side .grp td { background: #f8f9fb; font-weight: 650; font-size: 12px; }
+  .pending ul { list-style: none; margin: 0; padding: 0; }
+  .pending li { display: flex; gap: 10px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line-2); font-size: 12.5px; }
+  .pending li:first-child { border-top: 0; }
+  .log { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+  .log li { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line-2); }
+  .log li:last-child { border-bottom: 0; }
+  .log .tm { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .setting { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 8px; align-items: center; font-size: 12.5px; padding: 3px 0; }
+  .setting select { height: 34px; }
+
+  /* Recherche */
+  .results { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); max-height: 244px; overflow: auto; }
+  .results button { display: flex; width: 100%; gap: 10px; justify-content: space-between; align-items: center; appearance: none; border: 0;
+    border-bottom: 1px solid var(--line-2); background: #fff; padding: 8px 12px; text-align: left; cursor: pointer; min-height: 40px; }
+  .results li:last-child button { border-bottom: 0; }
+  .results button:hover, .results button:focus-visible { background: var(--accent-soft); outline-offset: -3px; }
+
+  /* Toast */
+  .toast { position: fixed; right: 24px; bottom: 24px; background: var(--ink); color: #fff; padding: 10px 16px; border-radius: var(--radius); font-size: 13.5px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .2); max-width: min(92vw, 480px); display: none; z-index: 10; }
+  .toast.on { display: block; }
+  .toast small { display: block; color: #c3cdd8; font-size: 12px; }
+
+  /* Comparer */
+  .cmp th[scope=row] { width: 160px; font-size: 12.5px; color: var(--ink-2); background: #fafbfc; font-weight: 650; }
+  .cmp thead th { white-space: normal; }
+  .cmp td, .cmp th { vertical-align: top; }
+  .cmp .col-d { background: repeating-linear-gradient(-45deg, #fdfcff, #fdfcff 8px, #f6f3fd 8px, #f6f3fd 16px); }
+  .cmp thead .col-d { color: var(--violet); }
+  .reco { border-left: 4px solid var(--accent); }
+  ul.q, ol.q { margin: 0; padding-left: 20px; } .q li + li { margin-top: 6px; }
+
+  /* Parcours D : écran réduit aux trois gestes (colonne latérale de démonstration masquée) */
+  .layout.no-side { grid-template-columns: minmax(0, 1fr); }
+  .side[hidden] { display: none; } /* .side impose display: flex, qui l'emporterait sur [hidden] */
+  .d-head h2 { flex-wrap: wrap; }
+  .d-head .note { margin-top: 6px; max-width: 120ch; font-size: 12.5px; color: var(--ink-3); }
+  .d-work { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+  @container main (min-width: 980px) { .d-work { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); } }
+  details.sim { border-top: 1px dashed var(--line); }
+  details.sim summary { cursor: pointer; font-size: 12.5px; color: var(--ink-3); padding: 10px 0; }
+  details.sim .simbox { border-top: 0; padding-top: 2px; }
+  details.sim .simbox .cap { display: none; }
+
+  /* Écrans moyens et petits */
+  @media (max-width: 1180px) { .flows [role=tab]:not(.tab-d) .d { display: none; } }
+  @media (max-width: 1100px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 760px) {
+    .topbar { flex-wrap: wrap; gap: 2px 12px; padding: 8px 14px; }
+    .demo-banner { padding: 8px 14px; }
+    .flows { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 8px 14px; overflow: visible; }
+    .flows [role=tab] { border: 1px solid var(--line); border-radius: var(--radius); padding: 7px 10px; min-height: 52px; }
+    .flows [role=tab][aria-selected=true] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+    .flows .tab-d[aria-selected=true] { border-color: var(--violet); box-shadow: inset 0 0 0 1px var(--violet); }
+    .flows .tab-cmp { grid-column: 1 / -1; }
+    .flows .sep { display: none; }
+    .flows .t { white-space: normal; line-height: 1.25; }
+    .flows .d { white-space: normal; }
+    .layout { padding: 14px; gap: 14px; }
+    .fhead { grid-template-columns: minmax(0, 1fr); }
+    .hyp { max-width: none; }
+    .rooms { grid-template-columns: minmax(0, 1fr); }
+    .steps li:not(.on) .l { display: none; }
+    .steps li { flex: 0 1 auto; }
+    .steps li.on { flex: 1 1 auto; }
+    .scanrow .inline { flex-wrap: wrap; }
+    .scanrow .inline .btn { width: 100%; }
+    .article { grid-template-columns: minmax(0, 1fr); }
+    .article .qty { text-align: left; }
+    .toast { left: 12px; right: 12px; bottom: 12px; max-width: none; }
+  }
+  @media (max-width: 760px), (pointer: coarse) {
+    .btn { min-height: 44px; }
+    .btn.sm { min-height: 40px; }
+    .chip { min-height: 40px; }
+    .seg button { height: 42px; }
+    input[type=text], input[type=number], input[type=date], input[type=search], select { height: 44px; font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#view">Aller au parcours</a>
+<header class="topbar">
+  <h1>CLMO · Entrée des stocks</h1>
+  <span class="where">Réserves centrales · phase 1 · poste fixe</span>
+  <span class="spacer"></span>
+  <span class="date" id="today"></span>
+</header>
+<div class="demo-banner" role="note">
+  <strong>Maquette de discussion — rien n'est enregistré</strong>
+  <span class="pill">Données fictives</span>
+  <span>Parcours à comparer avec Leila Dizi. Recharger la page remet la démo à zéro.</span>
+</div>
+<div class="flows" role="tablist" aria-label="Parcours à comparer">
+  <button type="button" role="tab" id="tab-A" data-flow="A" aria-controls="view"><span class="k">A</span><span class="t">Scanner et ranger</span><span class="d">Article par article, au rangement</span><span class="dot"></span></button>
+  <button type="button" role="tab" id="tab-B" data-flow="B" aria-controls="view"><span class="k">B</span><span class="t">Réception groupée</span><span class="d">Une liste, contrôlée puis validée</span><span class="dot"></span></button>
+  <button type="button" role="tab" id="tab-C" data-flow="C" aria-controls="view"><span class="k">C</span><span class="t">Inventaire initial guidé</span><span class="d">Ponctuel, fin 2026</span><span class="dot"></span></button>
+  <button type="button" role="tab" id="tab-D" data-flow="D" aria-controls="view" class="tab-d"><span class="k">D</span><span class="t">Réception simple</span><span class="d">Piste à explorer · non validée</span><span class="dot"></span></button>
+  <span class="sep" aria-hidden="true"></span>
+  <button type="button" role="tab" id="tab-cmp" data-flow="cmp" aria-controls="view" class="tab-cmp"><span class="k">≡</span><span class="t">Comparer</span><span class="d">A, B, C et la piste D</span></button>
+</div>
+<div class="layout">
+  <main><div id="view" role="tabpanel" tabindex="-1"></div></main>
+  <aside id="side" class="side" aria-label="État de la démo"></aside>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="sr-only" id="sr-live" aria-live="polite"></div>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Données fictives (aucune persistance : tout vit dans cette page) ---------- */
+  var ROOMS = {
+    pharma: { name: "Pharmacie", sub: "Médicaments, vaccins · 1 à 2 livraisons / semaine" },
+    cons:   { name: "Consommables", sub: "Seringues, compresses, gants · hebdomadaire" },
+    pap:    { name: "Papeterie", sub: "Commandes ponctuelles, plus volumineuses" }
+  };
+  var ROOM_IDS = ["pharma", "cons", "pap"];
+
+  // Codes 200… : plage GS1 à usage interne, donc sans lien avec un produit réel.
+  var catalogue = [
+    { id: "a1",  code: "2000000000017", name: "Seringue Luer DÉMO",            format: "5 ml",                    room: "cons",   exp: true,  demo: true },
+    { id: "a2",  code: "2000000000024", name: "Seringue Luer DÉMO",            format: "3 ml",                    room: "cons",   exp: true,  demo: true },
+    { id: "a3",  code: "2000000000031", name: "Compresses stériles DÉMO",      format: "10 × 10 cm, boîte de 50", room: "cons",   exp: true,  demo: true },
+    { id: "a4",  code: "2000000000048", name: "Gants nitrile DÉMO",            format: "taille M, boîte de 100",  room: "cons",   exp: false, demo: true },
+    { id: "a5",  code: "2000000000055", name: "Exemplol (produit fictif)",     format: "500 mg, boîte de 16",     room: "pharma", exp: true,  demo: true },
+    { id: "a6",  code: "2000000000062", name: "Vaccin fictif « Démo-V »",      format: "dose 0,5 ml",             room: "pharma", exp: true,  demo: true },
+    { id: "a7",  code: "2000000000079", name: "Solution fictive « Placebex »", format: "flacon 100 ml",           room: "pharma", exp: true,  demo: true },
+    { id: "a8",  code: "2000000000086", name: "Ramette papier DÉMO",           format: "A4 80 g, 500 feuilles",   room: "pap",    exp: false, demo: true },
+    { id: "a9",  code: "2000000000093", name: "Stylos bille DÉMO",             format: "bleu, boîte de 50",       room: "pap",    exp: false, demo: true },
+    { id: "a10", code: "2000000000109", name: "Chemises cartonnées DÉMO",      format: "A4, paquet de 100",       room: "pap",    exp: false, demo: true }
+  ];
+  function unknownCode() { // toujours un code absent du catalogue de la démo, même après création d'une fiche
+    for (var n = 994; n > 100; n -= 7) { var c = "2000000000" + n; if (!byCode(c)) return c; }
+    return "2000000000099";
+  }
+
+  /* ---------- Dates ---------- */
+  var TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function addDays(n) { var d = new Date(TODAY); d.setDate(d.getDate() + n); return iso(d); }
+  function addMonths(base, n) { // fin de mois bornée : 30/11 + 3 mois = 28/02, pas 02/03
+    var d = new Date(base), day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n);
+    d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); return d;
+  }
+  function parseISO(s) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(s || "")) return null;
+    var p = s.split("-"), d = new Date(+p[0], +p[1] - 1, +p[2]);
+    return isNaN(d) || d.getMonth() !== +p[1] - 1 ? null : d;
+  }
+  function fr(s) { if (!s) return "—"; var p = s.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
+  function daysUntil(s) { var d = parseISO(s); return d ? Math.round((d - TODAY) / 86400000) : null; }
+  function relDays(s) {
+    var n = daysUntil(s); if (n === null) return "";
+    if (n < 0) return "dépassée de " + (-n) + " j";
+    if (n === 0) return "expire aujourd'hui";
+    if (n <= 120) return "dans " + n + " j";
+    var m = Math.round(n / 30.44); return m < 24 ? "dans " + m + " mois" : "dans " + Math.round(n / 365) + " ans";
+  }
+  var TODAY_ISO = iso(TODAY);
+
+  /* ---------- Contrôles de saisie (communs aux parcours) ---------- */
+  var QMSG = {
+    missing: "Quantité à saisir.",
+    barcode: "Ce nombre ressemble à un code-barres lu dans le champ Quantité : effacez-le et saisissez la quantité.",
+    int: "Nombre entier attendu.",
+    min: "Au moins 1."
+  };
+  var QSHORT = { missing: "Quantité manquante", barcode: "Code-barres lu dans Quantité ?", int: "Quantité invalide", min: "Quantité invalide" };
+  function qtyCheck(v, allowZero) {
+    v = String(v == null ? "" : v).trim();
+    if (v === "") return "missing";
+    if (/^\d{8,}$/.test(v)) return "barcode"; // 8 chiffres ou plus : EAN-8/13, GTIN-14… jamais une quantité de réserve
+    if (!/^\d+$/.test(v)) return "int";
+    if (!allowZero && +v < 1) return "min";
+    return "";
+  }
+  function qtyOk(v) { return !qtyCheck(v); }
+  function expiryError(v) {
+    if (!v) return "Date de péremption à saisir (lue sur l'emballage).";
+    var d = parseISO(v);
+    if (!d || d.getFullYear() < 2000 || d.getFullYear() > 2099) return "Date invalide : vérifiez l'année.";
+    return "";
+  }
+  function entryDateError(v) {
+    var d = parseISO(v);
+    if (!v) return "Date à saisir.";
+    if (!d || d.getFullYear() < 2000) return "Date invalide.";
+    if (d > TODAY) return "La date ne peut pas être dans le futur.";
+    return "";
+  }
+
+  var uid = 0; function nid(p) { uid += 1; return p + uid; }
+
+  var stock = [
+    { id: nid("l"), articleId: "a5", room: "pharma", qty: 24,  entry: addDays(-20), expiry: addDays(50),  lot: "", src: "départ" },
+    { id: nid("l"), articleId: "a6", room: "pharma", qty: 10,  entry: addDays(-12), expiry: addDays(240), lot: "", src: "départ" },
+    { id: nid("l"), articleId: "a1", room: "cons",   qty: 200, entry: addDays(-30), expiry: addDays(700), lot: "", src: "départ" },
+    { id: nid("l"), articleId: "a4", room: "cons",   qty: 12,  entry: addDays(-30), expiry: null,         lot: "", src: "départ" },
+    { id: nid("l"), articleId: "a8", room: "pap",    qty: 30,  entry: addDays(-60), expiry: null,         lot: "", src: "départ" }
+  ];
+
+  var settings = { alert: { pharma: 3, cons: 3, pap: 0 } }; // mois ; proposition à valider
+  var log = [];
+
+  var S = {
+    flow: "A",
+    A: { room: null, phase: "scan", manual: false, search: "", unknown: null, form: null, err: null, last: [] },
+    B: { room: null, date: TODAY_ISO, bl: "", err: null, rec: null, manual: false, search: "", unknown: null, done: [], confirmCancel: false, flash: null },
+    C: { room: "pharma", manual: false, search: "", unknown: null, sel: null, form: null, err: null, confirmClose: false,
+         inv: { pharma: { closed: false, lines: [] }, cons: { closed: false, lines: [] }, pap: { closed: false, lines: [] } } },
+    D: { room: null, q: "", sel: null, form: null, err: null, unknown: null, lines: [], done: [], flash: null, simOpen: false }
+  };
+
+  /* ---------- Outils ---------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function art(id) { for (var i = 0; i < catalogue.length; i++) if (catalogue[i].id === id) return catalogue[i]; return null; }
+  function byCode(code) { for (var i = 0; i < catalogue.length; i++) if (catalogue[i].code && catalogue[i].code === code) return catalogue[i]; return null; }
+  function label(a) { return a.name + " — " + a.format; }
+  function now() { var d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function addLog(flow, text) { log.unshift({ tm: now(), flow: flow, text: text }); if (log.length > 60) log.pop(); }
+  function lotById(id) { for (var i = 0; i < stock.length; i++) if (stock[i].id === id) return stock[i]; return null; }
+  function qtyIn(aid, room) { return stock.filter(function (l) { return l.articleId === aid && l.room === room; }).reduce(function (s, l) { return s + l.qty; }, 0); }
+  function norm(s) { return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  function searchCat(q) { // tous les mots doivent apparaître, sans tenir compte des accents : « seringue 5 », « demo », « 0017 »
+    var t = norm(q).split(/\s+/).filter(Boolean);
+    return catalogue.filter(function (a) {
+      var h = norm(a.name + " " + a.format + " " + (a.code || "") + " " + ROOMS[a.room].name);
+      return t.every(function (x) { return h.indexOf(x) >= 0; });
+    });
+  }
+  function flowRoom(flow) {
+    if (flow === "A") return S.A.room;
+    if (flow === "B") return S.B.rec ? S.B.rec.room : S.B.room;
+    if (flow === "C") return S.C.room;
+    if (flow === "D") return S.D.room;
+    return null;
+  }
+
+  function expStatus(expiry, room) {
+    var d = parseISO(expiry); if (!d) return "none";
+    if (d < TODAY) return "expired";
+    var m = settings.alert[room] || 0;
+    if (m > 0 && d <= addMonths(TODAY, m)) return "soon";
+    return "ok";
+  }
+  function badge(expiry, room, noExp) {
+    if (noExp) return '<span class="badge b-none">Sans péremption</span>';
+    var st = expStatus(expiry, room);
+    if (st === "none") return '<span class="badge b-none">Date à saisir</span>';
+    if (st === "expired") return '<span class="badge b-expired">Périmé</span>';
+    if (st === "soon") return '<span class="badge b-soon">Proche · ' + esc(relDays(expiry).replace("dans ", "")) + '</span>';
+    return '<span class="badge b-ok">OK</span>';
+  }
+
+  var toastTimer;
+  function toast(msg, sub) {
+    var t = $("#toast");
+    t.innerHTML = esc(msg) + '<small>' + esc(sub || "Gardé uniquement dans la mémoire de cette page (démo).") + '</small>';
+    t.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("on"); }, 3600);
+  }
+  function announce(msg) { var el = $("#sr-live"); el.textContent = ""; setTimeout(function () { el.textContent = msg; }, 30); }
+  function focusLater(sel) {
+    setTimeout(function () {
+      var el = typeof sel === "string" ? $(sel) : sel;
+      if (el) { el.focus(); if (el.select && (el.type === "text" || el.type === "search" || el.type === "number")) el.select(); }
+    }, 0);
+  }
+
+  /* ---------- Briques communes ---------- */
+  function sno(n) { return '<span class="sno" aria-hidden="true">' + n + '</span>'; }
+  function field(lbl, input, err, id, opt) {
+    return '<div class="f"><label for="' + id + '">' + lbl + (opt ? ' <span class="opt">' + opt + '</span>' : '') + '</label>' + input +
+      (err ? '<span class="err-msg" id="' + id + '-err">' + esc(err) + '</span>' : '') + '</div>';
+  }
+  function inv(err, id) { return err ? ' aria-invalid="true" aria-describedby="' + id + '-err"' : ''; }
+  function staticField(lbl, html) { return '<div class="f"><span>' + lbl + '</span><div style="min-height:38px;display:flex;align-items:center">' + html + '</div></div>'; }
+
+  function roomPicker(flow, current, hint) {
+    return '<div class="rooms" role="group" aria-label="Pièce">' + ROOM_IDS.map(function (r) {
+      return '<button type="button" class="room" id="room-' + flow + '-' + r + '" data-act="room" data-flow="' + flow + '" data-room="' + r + '" aria-pressed="' + (current === r) + '">' +
+        '<span class="n">' + ROOMS[r].name + '</span><span class="s">' + esc(hint ? hint(r) : ROOMS[r].sub) + '</span></button>';
+    }).join("") + '</div>';
+  }
+  function segMode(flow) {
+    var m = S[flow].manual;
+    return '<div class="seg" role="group" aria-label="Mode de saisie">' +
+      '<button type="button" data-act="mode" data-flow="' + flow + '" data-manual="0" aria-pressed="' + !m + '">Lecteur</button>' +
+      '<button type="button" data-act="mode" data-flow="' + flow + '" data-manual="1" aria-pressed="' + m + '">Mode manuel</button></div>';
+  }
+  function simChips(flow) {
+    var list = catalogue.filter(function (a) { return a.demo && (flow !== "C" || a.room === S.C.room); });
+    return '<div class="simbox"><p class="cap">Simuler un bip du lecteur <span class="badge b-none">codes fictifs</span></p><div class="chips">' +
+      list.map(function (a) {
+        return '<button type="button" class="chip" data-act="sim" data-flow="' + flow + '" data-code="' + a.code + '">' + esc(a.name + " " + a.format) + ' <span class="mono">…' + a.code.slice(-4) + '</span></button>';
+      }).join("") +
+      '<button type="button" class="chip unknown" data-act="sim" data-flow="' + flow + '" data-code="' + unknownCode() + '">Code inconnu <span class="mono">…' + unknownCode().slice(-4) + '</span></button></div></div>';
+  }
+  function scanInput(flow, placeholder) {
+    return '<form class="scanrow" data-form="scan" data-flow="' + flow + '" autocomplete="off" novalidate>' +
+      '<label class="f" for="scan-' + flow + '">Code-barres <span class="hint">le lecteur USB tape le code puis « Entrée »</span></label>' +
+      '<div class="inline"><input class="scan" type="text" inputmode="numeric" id="scan-' + flow + '" name="code" placeholder="' + (placeholder || "Bipez un article…") + '">' +
+      '<button class="btn big" type="submit">Valider le code</button></div></form>';
+  }
+  function manualSearch(flow) {
+    var st = S[flow], res = searchCat(st.search);
+    return '<div class="f"><label for="search-' + flow + '">Rechercher un article <span class="opt">nom, format ou fin du code</span></label>' +
+      '<input type="search" id="search-' + flow + '" data-input="search" data-flow="' + flow + '" value="' + esc(st.search) + '" placeholder="ex. seringue 5" aria-controls="results-' + flow + '" aria-describedby="search-help-' + flow + '">' +
+      '<span class="hint" id="search-help-' + flow + '"><kbd>Entrée</kbd> choisit le premier résultat · <kbd>↓</kbd> parcourt la liste</span></div>' +
+      '<ul class="results" id="results-' + flow + '" aria-label="Résultats de recherche">' + resultsHtml(flow, res) + '</ul>' +
+      '<p class="sr-only" id="results-count-' + flow + '" aria-live="polite">' + res.length + ' résultat(s)</p>' +
+      '<button type="button" class="btn ghost" data-act="newart" data-flow="' + flow + '">+ Article absent de la liste : créer une fiche minimale</button>';
+  }
+  function resultsHtml(flow, res) {
+    if (!res.length) return '<li class="small muted" style="padding:10px 12px">Aucun article trouvé. Vérifiez l\'orthographe ou créez une fiche minimale.</li>';
+    return res.map(function (a) {
+      return '<li><button type="button" data-act="pick" data-flow="' + flow + '" data-id="' + a.id + '"><span><b>' + esc(a.name) + '</b> · ' + esc(a.format) + '</span><span class="small muted">' + ROOMS[a.room].name + '</span></button></li>';
+    }).join("");
+  }
+  function scanBox(flow, title) {
+    var st = S[flow];
+    var h = '<div class="stack"><div class="row"><h3 class="grow">' + title + '</h3>' + segMode(flow) + '</div>';
+    h += st.manual ? manualSearch(flow) : scanInput(flow) + simChips(flow);
+    if (st.unknown) h += unknownPanel(flow);
+    return h + '</div>';
+  }
+  function expDefault(room) { return room === "pap" ? "0" : "1"; } // préremplissage selon la pièce, modifiable
+  function newArtFields(prefix, room, vals, err) {
+    vals = vals || {}; err = err || {};
+    var def = vals.exp != null ? vals.exp : expDefault(room);
+    return '<div class="fields">' +
+      field("Désignation / marque", '<input type="text" name="name" id="' + prefix + '-name" data-k="name" value="' + esc(vals.name) + '" placeholder="ex. Pansement DÉMO"' + inv(err.name, prefix + "-name") + '>', err.name, prefix + "-name") +
+      field("Format / dosage", '<input type="text" name="format" id="' + prefix + '-format" data-k="format" value="' + esc(vals.format) + '" placeholder="ex. 8 × 10 cm"' + inv(err.format, prefix + "-format") + '>', err.format, prefix + "-format") +
+      '<fieldset class="f radios"><legend>Date de péremption à chaque entrée ? <span class="opt">préremplie selon la pièce · à valider</span></legend>' +
+      '<label><input type="radio" name="exp" data-k="exp" value="1"' + (def === "1" ? " checked" : "") + '> Oui</label>' +
+      '<label><input type="radio" name="exp" data-k="exp" value="0"' + (def === "0" ? " checked" : "") + '> Non</label></fieldset></div>';
+  }
+  function unknownPanel(flow) {
+    var u = S[flow].unknown, room = flowRoom(flow);
+    return '<form class="notice warn stack" data-form="newart" data-flow="' + flow + '" autocomplete="off" novalidate aria-labelledby="unk-t-' + flow + '">' +
+      '<p id="unk-t-' + flow + '"><b>' + (u.code ? 'Code inconnu : <span class="mono">' + esc(u.code) + '</span>' : 'Nouvel article') + '</b> — fiche minimale : désignation et format, la fiche se complète plus tard si besoin.</p>' +
+      newArtFields("new-" + flow, room, u.vals, u.err) +
+      '<div class="row"><button class="btn primary" type="submit">Créer la fiche et continuer</button><button class="btn ghost" type="button" data-act="cancelnew" data-flow="' + flow + '">Annuler</button></div></form>';
+  }
+  function readNewArt(form) {
+    var name = form.elements.name.value.trim(), format = form.elements.format.value.trim(), r = form.querySelector('input[name=exp]:checked');
+    var err = {}; if (!name) err.name = "Désignation à saisir."; if (!format) err.format = "Format ou dosage à saisir.";
+    return { vals: { name: name, format: format, exp: r ? r.value : "1" }, err: err, ok: !err.name && !err.format };
+  }
+  function createArticle(vals, code, room, flow) {
+    var a = { id: nid("new"), code: code || "", name: vals.name, format: vals.format, room: room, exp: vals.exp === "1" };
+    catalogue.push(a);
+    addLog(flow, "Fiche créée : " + label(a) + (a.code ? " (code …" + a.code.slice(-4) + ")" : "") + (a.exp ? "" : ", sans péremption"));
+    return a;
+  }
+
+  function stepper(steps, cur) {
+    var on = [].concat(cur), first = Math.min.apply(null, on);
+    return '<ol class="steps" aria-label="Étapes du parcours">' + steps.map(function (s, i) {
+      var cls = on.indexOf(i) >= 0 ? "on" : i < first ? "done" : "";
+      return '<li class="' + cls + '"' + (cls === "on" ? ' aria-current="step"' : '') + '><span class="n" aria-hidden="true">' + (cls === "done" ? "✓" : i + 1) + '</span>' +
+        '<span class="l"><span class="sr-only">Étape ' + (i + 1) + (cls === "done" ? ", faite" : "") + ' : </span>' + esc(s) + '</span></li>';
+    }).join("") + '</ol>';
+  }
+  function hypNote() {
+    return '<p class="hyp"><b>Hypothèse à confirmer :</b> lecteur USB qui saisit comme un clavier. Le code-barres préremplit la référence, jamais la date ni le lot : la personne les lit et les saisit.</p>';
+  }
+  function flowHead(k, title, lead, steps, next) {
+    return '<section class="fhead-wrap' + (k === "D" ? " flow-d" : "") + '" aria-labelledby="h-' + k + '">' +
+      '<div class="fhead"><div><h2 id="h-' + k + '"><span class="fk' + (k === "D" ? " d" : "") + '" aria-hidden="true">' + k + '</span><span><span class="sr-only">Parcours ' + k + ' : </span>' + esc(title) + '</span></h2>' +
+      '<p class="lead">' + esc(lead) + '</p></div>' + hypNote() + '</div>' + steps +
+      (next ? '<div class="next ' + (next.tone || "") + '"><span class="lbl">' + (next.label || "Prochaine étape") + '</span><span>' + next.html + '</span></div>' : '') +
+      '</section>';
+  }
+  function confirmBar(id, text, yesAct, yesLabel, noAct, noLabel) {
+    return '<div class="notice err" role="group" aria-labelledby="' + id + '-t" style="margin:12px 16px 0"><span id="' + id + '-t">' + text + '</span><span class="actions">' +
+      '<button type="button" class="btn sm danger-solid" data-act="' + yesAct + '" id="' + id + '-yes">' + yesLabel + '</button>' +
+      '<button type="button" class="btn sm" data-act="' + noAct + '" id="' + id + '-no">' + noLabel + '</button></span></div>';
+  }
+  function entryFocus(flow) { return S[flow].manual ? "#search-" + flow : "#scan-" + flow; }
+  function kpi(k, v, tone) { return '<div class="kpi ' + (tone || "") + '"><span class="v">' + v + '</span><span class="k">' + k + '</span></div>'; }
+  var seq = { B: 0, D: 0 };
+  function recId(flow) { seq[flow] += 1; return flow + "-DÉMO-" + String(seq[flow]).padStart(3, "0"); }
+
+  /* ---------- Parcours A : scanner et ranger tout de suite ---------- */
+  function viewA() {
+    var st = S.A, a = st.form ? art(st.form.articleId) : null;
+    var steps = ["Pièce", "Scanner", "Vérifier", "Quantité / péremption", "Ranger"];
+    var cur = !st.room ? 0 : st.phase === "scan" ? 1 : [2, 3];
+    var next = !st.room ? { html: "Choisissez la pièce où vous rangez." }
+      : st.phase === "scan" ? { html: "Bipez l'article que vous rangez en <b>" + ROOMS[st.room].name + "</b>, ou passez en mode manuel." }
+      : { html: "Vérifiez l'article, saisissez la quantité" + (a.exp ? " et la date lue sur l'emballage" : "") + ", puis <kbd>Entrée</kbd> pour ranger." };
+    var h = flowHead("A", "Scanner et ranger tout de suite",
+      "Chaque article est saisi au moment où il est rangé, un par un. Après confirmation, le curseur revient sur le scan pour l'article suivant.", stepper(steps, cur), next);
+    h += '<section class="card"><div class="hd"><h3>' + sno(1) + 'Pièce où l\'on range</h3><span class="spacer"></span><span class="small muted">mémorisée pour la session</span></div><div class="bd">' + roomPicker("A", st.room) + '</div></section>';
+    if (st.room) h += st.phase === "scan" ? '<section class="card"><div class="bd">' + scanBox("A", sno(2) + "Scanner l'article · " + ROOMS[st.room].name) + '</div></section>' : formA();
+    return h + sessionA();
+  }
+  function formA() {
+    var st = S.A, f = st.form, a = art(f.articleId), e = st.err || {};
+    var h = '<section class="card"><div class="hd"><h3>' + sno("3–4") + 'Vérifier l\'article, puis compléter</h3><span class="spacer"></span>' +
+      '<button type="button" class="btn ghost" data-act="a-back">← Rescanner <kbd>Échap</kbd></button></div><div class="bd stack">' +
+      '<div class="article"><div><div class="name">' + esc(a.name) + '</div><div class="meta">' + esc(a.format) + ' · code <span class="mono">' + esc(a.code || "—") + '</span> · ' +
+      (a.exp ? "article à péremption" : "article sans péremption") + '</div></div>' +
+      '<div class="qty"><div class="small muted">Stock actuel · ' + ROOMS[st.room].name + '</div><b>' + qtyIn(a.id, st.room) + '</b></div></div>';
+    if (a.room !== st.room) h += '<div class="notice warn"><span><b>Pièce inhabituelle :</b> cet article est d\'habitude rangé en ' + ROOMS[a.room].name +
+      '. Vous pouvez le ranger quand même en ' + ROOMS[st.room].name + '.</span><span class="actions"><button type="button" class="btn sm" data-act="a-room" data-room="' + a.room + '">Ranger plutôt en ' + ROOMS[a.room].name + '</button></span></div>';
+    h += '<form data-form="a-confirm" class="stack" autocomplete="off" novalidate>' +
+      (e._sum ? '<div class="notice err" role="alert"><span>' + esc(e._sum) + '</span></div>' : '') + '<div class="fields">' +
+      field("Quantité", '<input type="number" inputmode="numeric" min="1" step="1" id="a-qty" data-input="a" data-k="qty" value="' + esc(f.qty) + '"' + inv(e.qty, "a-qty") + '>', e.qty, "a-qty") +
+      (a.exp ? field("Date de péremption", '<input type="date" id="a-exp" data-input="a" data-k="expiry" value="' + esc(f.expiry) + '"' + inv(e.expiry, "a-exp") + '>', e.expiry, "a-exp", "lue sur l'emballage")
+             : staticField("Péremption", badge(null, null, true))) +
+      field("N° de lot", '<input type="text" id="a-lot" data-input="a" data-k="lot" value="' + esc(f.lot) + '">', null, "a-lot", "facultatif · à valider") +
+      field("Date d'entrée", '<input type="date" id="a-entry" data-input="a" data-k="entry" max="' + TODAY_ISO + '" value="' + esc(f.entry) + '"' + inv(e.entry, "a-entry") + '>', e.entry, "a-entry", "préremplie") +
+      '</div><div id="a-exp-state">' + aExpState(a) + '</div><div class="row" id="a-actions">' + aActions(a) + '</div></form></div></section>';
+    return h;
+  }
+  function aExpired(a) { var f = S.A.form; return a.exp && !expiryError(f.expiry) && expStatus(f.expiry, S.A.room) === "expired"; }
+  function aActions(a) {
+    return '<button class="btn primary big" type="submit" id="a-submit">Ranger en ' + ROOMS[S.A.room].name + '</button>' +
+      (aExpired(a) ? '<button type="button" class="btn big" data-act="a-reject" id="a-reject">Ne pas ranger cet article</button>' : '') +
+      '<span class="small muted"><kbd>Entrée</kbd> confirme · l\'article suivant s\'enchaîne</span>';
+  }
+  function aExpState(a) {
+    var f = S.A.form, room = S.A.room;
+    if (!a.exp) return '<p class="small muted">Article sans péremption (réglage de la fiche) : seule la quantité est demandée.</p>';
+    if (!f.expiry || expiryError(f.expiry)) return '<p class="small muted">La date se lit sur l\'emballage : le code-barres ne la fournit pas.</p>';
+    var s = expStatus(f.expiry, room);
+    if (s === "expired") return '<div class="notice err"><span><b>Date dépassée (' + relDays(f.expiry) + ') : produit périmé, il n\'entre pas en stock.</b> Corrigez la date si elle est mal saisie, sinon « Ne pas ranger cet article ». Que faire du produit (retour, destruction) : question ouverte.</span></div>';
+    if (s === "soon") return '<div class="notice warn"><span><b>Péremption proche :</b> ' + relDays(f.expiry) + ' (seuil proposé : ' + settings.alert[room] + ' mois, à valider). Le rangement reste possible ; un badge le signalera dans le stock.</span></div>';
+    return '<p class="small muted">' + badge(f.expiry, room) + ' Péremption au ' + fr(f.expiry) + ' (' + relDays(f.expiry) + ').</p>';
+  }
+  function validateA() {
+    var f = S.A.form, a = art(f.articleId), e = {}, q = qtyCheck(f.qty);
+    if (q) e.qty = QMSG[q];
+    if (a.exp) {
+      var x = expiryError(f.expiry);
+      if (x) e.expiry = x; else if (expStatus(f.expiry, S.A.room) === "expired") e.expiry = "Produit périmé : il n'entre pas en stock.";
+    }
+    var en = entryDateError(f.entry); if (en) e.entry = en;
+    return e;
+  }
+  function confirmA() {
+    var e = validateA(), keys = Object.keys(e);
+    if (keys.length) {
+      e._sum = keys.length === 1 ? "Un champ est à corriger avant de ranger." : keys.length + " champs sont à corriger avant de ranger.";
+      S.A.err = e; render(); focusLater({ qty: "#a-qty", expiry: "#a-exp", entry: "#a-entry" }[keys[0]]); return;
+    }
+    var f = S.A.form, a = art(f.articleId);
+    var l = { id: nid("l"), articleId: a.id, room: S.A.room, qty: +f.qty, entry: f.entry, expiry: a.exp ? f.expiry : null, lot: f.lot.trim(), src: "A" };
+    stock.push(l);
+    S.A.last.unshift({ lotId: l.id, tm: now(), snap: { articleId: a.id, qty: l.qty, expiry: l.expiry, room: l.room } });
+    addLog("A", "+" + l.qty + " " + label(a) + " → " + ROOMS[l.room].name);
+    toast("Rangé : " + l.qty + " × " + label(a) + " en " + ROOMS[l.room].name + ".");
+    S.A.phase = "scan"; S.A.form = null; S.A.err = null;
+    render(); focusLater(entryFocus("A"));
+  }
+  function rejectA() {
+    var f = S.A.form, a = art(f.articleId);
+    S.A.last.unshift({ rejected: true, tm: now(), snap: { articleId: a.id, qty: f.qty, expiry: f.expiry, room: S.A.room } });
+    addLog("A", "Non rangé (périmé à réception) : " + label(a) + " · suite à définir");
+    toast("Non rangé : " + label(a) + ".", "Noté dans le journal de la démo. Que faire du produit reste une question ouverte.");
+    S.A.phase = "scan"; S.A.form = null; S.A.err = null; render(); focusLater(entryFocus("A"));
+  }
+  function pickA(id) {
+    S.A.phase = "form"; S.A.err = null; S.A.form = { articleId: id, qty: "", expiry: "", lot: "", entry: TODAY_ISO };
+    render(); focusLater("#a-qty");
+  }
+  function liveA() { for (var i = 0; i < S.A.last.length; i++) { var e = S.A.last[i]; if (!e.rejected && !e.undone && lotById(e.lotId)) return i; } return -1; }
+  function sessionA() {
+    var rows = S.A.last, live = liveA(), n = rows.filter(function (e) { return !e.rejected && !e.undone && lotById(e.lotId); }).length;
+    var h = '<section class="card"><div class="hd"><h3>Rangés pendant cette session</h3><span class="spacer"></span><span class="small muted">' + n + ' entrée(s) en stock</span></div>';
+    if (!rows.length) return h + '<div class="bd"><p class="small muted">Rien encore. Bipez un article pour voir l\'enchaînement.</p></div></section>';
+    return h + '<div class="table-wrap"><table><thead><tr><th>Heure</th><th>Article</th><th class="num">Qté</th><th>Péremption</th><th><span class="sr-only">Action</span></th></tr></thead><tbody>' +
+      rows.map(function (e, i) {
+        var s = e.snap, a = art(s.articleId), gone = !e.rejected && !lotById(e.lotId);
+        var status = e.rejected ? '<span class="badge b-err">Non rangé · périmé</span>' : e.undone ? '<span class="badge b-none">Annulée</span>'
+          : gone ? '<span class="badge b-none">Remplacée par l\'inventaire C</span>' : badge(s.expiry, s.room, !a.exp);
+        return '<tr' + (e.rejected || e.undone || gone ? ' class="off"' : '') + '><td class="mono">' + e.tm + '</td><td><span class="nm">' + esc(label(a)) + '</span><div class="small muted">' + ROOMS[s.room].name + '</div></td>' +
+          '<td class="num">' + esc(s.qty || "—") + '</td><td>' + (a.exp ? fr(s.expiry) + ' ' : '') + status + '</td>' +
+          '<td style="text-align:right">' + (i === live ? '<button type="button" class="btn ghost danger sm" data-act="a-undo" id="a-undo">Annuler cette entrée</button>' : '') + '</td></tr>';
+      }).join("") + '</tbody></table></div></section>';
+  }
+
+  /* ---------- Parcours B : réception groupée ---------- */
+  function headB(sum) {
+    var st = S.B, rec = st.rec;
+    var steps = ["Créer la réception", "Ajouter les lignes", "Corriger", "Contrôler", "Valider puis ranger"];
+    var cur = !rec ? (st.flash ? 5 : 0) : !rec.lines.length ? 1 : sum.blocking ? 2 : 3;
+    var next = !rec ? (st.flash ? { tone: "ok", label: "Fait", html: "Réception <b>" + esc(st.flash.id) + "</b> validée : " + st.flash.n + " entrée(s), " + st.flash.units + " unité(s) rangées en " + ROOMS[st.flash.room].name + "." }
+        : { html: "Choisissez la pièce, puis créez la réception (proposition : une réception = une pièce)." })
+      : !rec.lines.length ? { html: "Bipez les articles de la livraison : une ligne par article et par date de péremption." }
+      : sum.blocking ? { tone: "err", label: "À corriger", html: sum.blocking + " ligne(s) en rouge bloquent la validation : complétez-les ou supprimez-les." }
+      : { tone: "ok", html: "Liste complète : comparez-la au bon de livraison, puis validez." };
+    return flowHead("B", "Réception groupée",
+      "La livraison est saisie comme une liste : une ligne par article et par date de péremption. Chaque ligne se corrige seule, sans tout recommencer. Rien n'entre en stock tant que la réception n'est pas validée.",
+      stepper(steps, cur), next);
+  }
+  function viewB() {
+    var st = S.B, sum = st.rec ? bSummary() : null;
+    var h = headB(sum) + (st.rec ? bDraftCards(sum) : bCreateCard());
+    if (st.done.length) h += doneTable("B", st.done);
+    return h;
+  }
+  function bCreateCard() {
+    var st = S.B, e = st.err || {};
+    return '<section class="card"><div class="hd"><h3>' + sno(1) + 'Nouvelle réception</h3></div><div class="bd stack">' + roomPicker("B", st.room) +
+      (e.room ? '<p class="err-msg" role="alert">' + esc(e.room) + '</p>' : '') +
+      '<form data-form="b-create" class="fields" autocomplete="off" novalidate>' +
+      field("Date de réception", '<input type="date" id="b-date" data-input="new" data-flow="B" data-k="date" max="' + TODAY_ISO + '" value="' + esc(st.date) + '"' + inv(e.date, "b-date") + '>', e.date, "b-date", "préremplie") +
+      field("Réf. bon de livraison", '<input type="text" id="b-bl" data-input="new" data-flow="B" data-k="bl" value="' + esc(st.bl) + '" placeholder="ex. BL-DÉMO-0042">', null, "b-bl", "facultatif · à valider") +
+      '<div class="f f-act"><button class="btn primary big" type="submit" id="b-create">Créer la réception</button></div></form></div></section>';
+  }
+  function bDraftCards(sum) {
+    var st = S.B, rec = st.rec;
+    return '<section class="card"><div class="hd"><h3>Réception ' + esc(rec.id) + '</h3><span class="badge b-soon">Brouillon · stock pas encore à jour</span>' +
+      '<span class="small muted">' + ROOMS[rec.room].name + ' · ' + fr(rec.date) + (rec.bl ? ' · ' + esc(rec.bl) : '') + '</span><span class="spacer"></span>' +
+      '<button type="button" class="btn ghost danger" data-act="b-cancel" id="b-cancel">Abandonner…</button></div>' +
+      (st.confirmCancel ? confirmBar("b-cc", '<b>Abandonner ce brouillon ?</b> Ses ' + rec.lines.length + ' ligne(s) seront perdues et rien ne sera rangé.', "b-cancel-yes", "Oui, abandonner", "b-cancel-no", "Non, continuer") : '') +
+      '<div class="bd">' + scanBox("B", sno(2) + "Ajouter un article à la liste") + '</div></section>' +
+      '<section class="card"><div class="hd"><h3>' + sno(3) + 'Lignes de la réception</h3><span class="spacer"></span><span class="small muted"><kbd>Entrée</kbd> passe au champ suivant, puis revient au scan</span></div>' +
+      '<div class="table-wrap"><table id="b-table"><thead><tr><th>#</th><th>Article</th><th class="num">Quantité</th><th>Péremption</th><th>N° lot <span style="text-transform:none;font-weight:400">(facult.)</span></th><th>État</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>' +
+      (rec.lines.length ? rec.lines.map(bRow).join("") : '<tr><td colspan="7" class="muted small">Aucune ligne. Bipez ou recherchez les articles de la livraison.</td></tr>') +
+      '</tbody></table></div>' +
+      '<div class="bd stack" style="border-top:1px solid var(--line-2)"><h3>' + sno(4) + 'Contrôle avant validation</h3><div id="b-summary" class="stack">' + sum.html + '</div></div></section>';
+  }
+  function bIssues(ln, lines, room) {
+    var a = art(ln.articleId), out = {}, q = qtyCheck(ln.qty);
+    if (q) out.qty = q;
+    if (a.exp) {
+      if (expiryError(ln.expiry)) out.exp = ln.expiry ? "Date invalide" : "Péremption manquante";
+      else { var s = expStatus(ln.expiry, room); if (s === "expired") out.expired = true; else if (s === "soon") out.soon = true; }
+    }
+    var idx = lines.indexOf(ln);
+    for (var i = 0; i < idx; i++) {
+      var o = lines[i];
+      if (o.articleId === ln.articleId && (a.exp ? (ln.expiry && o.expiry === ln.expiry) : true)) { out.dupOf = i; break; }
+    }
+    if (a.room !== room) out.atypical = a.room;
+    out.blocking = !!(out.qty || out.exp || out.expired);
+    return out;
+  }
+  function bStateCell(ln, is) {
+    var p = [];
+    if (is.qty) p.push('<span class="badge b-err">' + QSHORT[is.qty] + '</span>');
+    if (is.exp) p.push('<span class="badge b-err">' + is.exp + '</span>');
+    if (is.expired) p.push('<span class="badge b-err">Périmé : à retirer</span>');
+    if (!is.blocking) p.push('<span class="badge b-ok">Prête</span>');
+    if (is.dupOf !== undefined) p.push('<span class="badge b-warn">Doublon de la ligne ' + (is.dupOf + 1) + ' ?</span><button type="button" class="btn ghost sm" data-act="b-merge" data-id="' + ln.id + '">Cumuler</button>');
+    if (is.soon) p.push(badge(ln.expiry, S.B.rec.room));
+    if (is.atypical) p.push('<span class="badge b-info">D\'habitude en ' + ROOMS[is.atypical].name + '</span>');
+    return '<div class="state">' + p.join("") + '</div>';
+  }
+  function bRow(ln, i) {
+    var rec = S.B.rec, a = art(ln.articleId), is = bIssues(ln, rec.lines, rec.room);
+    return '<tr data-line="' + ln.id + '" class="' + (is.blocking ? "bad" : is.dupOf !== undefined ? "dup" : "") + '"><td class="mono">' + (i + 1) + '</td>' +
+      '<td><b>' + esc(a.name) + '</b><div class="small muted">' + esc(a.format) + '</div></td>' +
+      '<td class="num"><input type="number" inputmode="numeric" min="1" step="1" data-input="b" data-id="' + ln.id + '" data-k="qty" id="b-qty-' + ln.id + '" value="' + esc(ln.qty) + '" aria-label="Quantité, ligne ' + (i + 1) + '"' + (is.qty ? ' aria-invalid="true"' : '') + '></td>' +
+      '<td>' + (a.exp ? '<input type="date" data-input="b" data-id="' + ln.id + '" data-k="expiry" id="b-exp-' + ln.id + '" value="' + esc(ln.expiry) + '" aria-label="Péremption, ligne ' + (i + 1) + '"' + (is.exp || is.expired ? ' aria-invalid="true"' : '') + '>'
+             : '<span class="badge b-none">Sans péremption</span>') + '</td>' +
+      '<td><input type="text" data-input="b" data-id="' + ln.id + '" data-k="lot" id="b-lot-' + ln.id + '" value="' + esc(ln.lot) + '" aria-label="N° de lot, facultatif, ligne ' + (i + 1) + '"></td>' +
+      '<td class="st">' + bStateCell(ln, is) + '</td>' +
+      '<td style="text-align:right"><button type="button" class="btn ghost danger sm" data-act="b-del" data-id="' + ln.id + '" aria-label="Supprimer la ligne ' + (i + 1) + '">Supprimer</button></td></tr>';
+  }
+  function bSummary() {
+    var rec = S.B.rec, lines = rec.lines, c = { blocking: 0, incomplete: 0, expired: 0, dups: 0, soon: 0, atypical: 0, units: 0 }, firstBad = null;
+    lines.forEach(function (ln) {
+      var is = bIssues(ln, lines, rec.room);
+      if (is.blocking) { c.blocking++; if (!firstBad) firstBad = { ln: ln, is: is }; }
+      if (is.qty || is.exp) c.incomplete++;
+      if (is.expired) c.expired++;
+      if (is.dupOf !== undefined) c.dups++;
+      if (is.soon) c.soon++;
+      if (is.atypical) c.atypical++;
+      if (qtyOk(ln.qty)) c.units += +ln.qty;
+    });
+    var ok = lines.length > 0 && !c.blocking;
+    var html = '<div class="kpis">' + kpi("Lignes", lines.length) + kpi("Unités", c.units) + kpi("À compléter", c.incomplete, c.incomplete ? "err" : "") +
+      kpi("Périmées", c.expired, c.expired ? "err" : "") + kpi("Doublons possibles", c.dups, c.dups ? "warn" : "") + kpi("Péremption proche", c.soon, c.soon ? "warn" : "") + '</div>' +
+      (!lines.length ? '<p class="small muted">Ajoutez au moins une ligne.</p>'
+        : c.blocking ? '<div class="notice err"><span><b>Validation bloquée :</b> ' + c.blocking + ' ligne(s) en rouge à compléter ou à supprimer.</span></div>'
+        : c.dups ? '<div class="notice warn"><span>Doublons possibles : cumulez-les, ou validez s\'il s\'agit bien de deux lignes distinctes.</span></div>'
+        : '<div class="notice ok"><span>Liste complète : prête à valider.</span></div>') +
+      (c.atypical ? '<p class="small muted">' + c.atypical + ' article(s) d\'habitude rangé(s) dans une autre pièce : à vérifier avant de valider (non bloquant).</p>' : '') +
+      '<div class="row"><button type="button" class="btn primary big" data-act="b-validate" id="b-validate"' + (ok ? '' : ' aria-disabled="true"') + ' aria-describedby="b-val-why">Valider la réception et ranger</button>' +
+      '<span class="small muted" id="b-val-why">' + (ok ? "Les " + lines.length + " ligne(s) entrent en stock en une fois, en " + ROOMS[rec.room].name + "." : !lines.length ? "Aucune ligne à valider." : "Le bouton s'active quand plus aucune ligne n'est en rouge.") + '</span></div>';
+    return { ok: ok, html: html, blocking: c.blocking, firstBad: firstBad };
+  }
+  function refreshB() {
+    var rec = S.B.rec, sum = bSummary();
+    rec.lines.forEach(function (l) {
+      var tr = $('tr[data-line="' + l.id + '"]'); if (!tr) return;
+      var is = bIssues(l, rec.lines, rec.room);
+      tr.className = is.blocking ? "bad" : is.dupOf !== undefined ? "dup" : "";
+      $(".st", tr).innerHTML = bStateCell(l, is);
+      var q = $("#b-qty-" + l.id); if (q) q.setAttribute("aria-invalid", !!is.qty);
+      var x = $("#b-exp-" + l.id); if (x) x.setAttribute("aria-invalid", !!(is.exp || is.expired));
+    });
+    $("#b-summary").innerHTML = sum.html;
+    var hw = $("#view .fhead-wrap"); if (hw) hw.outerHTML = headB(sum);
+  }
+  function createB() {
+    var st = S.B, e = {};
+    if (!st.room) e.room = "Choisissez d'abord la pièce de destination.";
+    var de = entryDateError(st.date); if (de) e.date = de;
+    if (e.room || e.date) { st.err = e; render(); focusLater(e.room ? "#room-B-pharma" : "#b-date"); return; }
+    st.err = null; st.flash = null;
+    st.rec = { id: recId("B"), room: st.room, date: st.date, bl: st.bl.trim(), lines: [] };
+    addLog("B", "Réception " + st.rec.id + " créée (" + ROOMS[st.room].name + ")");
+    render(); focusLater(entryFocus("B"));
+  }
+  function pickB(id) {
+    var rec = S.B.rec, a = art(id), ln = { id: nid("r"), articleId: id, qty: "", expiry: "", lot: "" };
+    var dup = rec.lines.some(function (o) { return o.articleId === id; });
+    rec.lines.push(ln);
+    addLog("B", "Ligne " + rec.lines.length + " : " + label(a) + (dup ? " (article déjà dans la liste)" : ""));
+    render(); focusLater("#b-qty-" + ln.id);
+  }
+  function validateB() {
+    var st = S.B, rec = st.rec, sum = bSummary();
+    if (!sum.ok) {
+      if (sum.firstBad) { var b = sum.firstBad; focusLater(b.is.qty ? "#b-qty-" + b.ln.id : "#b-exp-" + b.ln.id); announce("Validation bloquée : " + sum.blocking + " ligne(s) à corriger."); }
+      else focusLater(entryFocus("B"));
+      return;
+    }
+    var units = 0;
+    rec.lines.forEach(function (ln) {
+      var a = art(ln.articleId); units += +ln.qty;
+      stock.push({ id: nid("l"), articleId: ln.articleId, room: rec.room, qty: +ln.qty, entry: rec.date, expiry: a.exp ? ln.expiry : null, lot: ln.lot.trim(), src: "B · " + rec.id });
+    });
+    st.done.unshift({ id: rec.id, room: rec.room, date: rec.date, n: rec.lines.length, units: units });
+    st.flash = { id: rec.id, room: rec.room, n: rec.lines.length, units: units };
+    addLog("B", rec.id + " validée : " + rec.lines.length + " ligne(s), " + units + " unité(s) → " + ROOMS[rec.room].name);
+    toast("Réception " + rec.id + " validée : " + units + " unités rangées en " + ROOMS[rec.room].name + ".");
+    st.rec = null; st.confirmCancel = false; st.date = TODAY_ISO; st.bl = ""; st.unknown = null; render(); focusLater("#b-create");
+  }
+  function doneTable(flow, done) {
+    return '<section class="card"><div class="hd"><h3>Réceptions validées (démo)</h3></div><div class="table-wrap"><table><thead><tr><th>Réception</th><th>Pièce</th><th>Date</th><th class="num">Lignes rangées</th><th class="num">Unités</th><th>Statut</th></tr></thead><tbody>' +
+      done.map(function (r) {
+        return '<tr><td class="mono">' + esc(r.id) + '</td><td>' + ROOMS[r.room].name + '</td><td>' + fr(r.date) + '</td><td class="num">' + r.n + '</td><td class="num">' + r.units + '</td>' +
+          '<td><span class="badge b-ok">Validée</span></td></tr>';
+      }).join("") + '</tbody></table></div></section>';
+  }
+
+  /* ---------- Parcours C : inventaire initial guidé ---------- */
+  function cArticles(room) {
+    var ids = {}; S.C.inv[room].lines.forEach(function (l) { ids[l.articleId] = 1; });
+    return catalogue.filter(function (a) { return a.room === room || ids[a.id]; });
+  }
+  function cProgress(room) {
+    var list = cArticles(room), inv = S.C.inv[room];
+    var done = list.filter(function (a) { return inv.lines.some(function (l) { return l.articleId === a.id; }); }).length;
+    return { done: done, total: list.length };
+  }
+  function cFormExpired() {
+    var st = S.C; if (!st.sel || !st.form) return false;
+    var a = art(st.sel); return a.exp && !expiryError(st.form.expiry) && expStatus(st.form.expiry, st.room) === "expired";
+  }
+  function viewC() {
+    var st = S.C, inv = st.inv[st.room], p = cProgress(st.room);
+    var h = headC();
+    h += '<section class="card"><div class="hd"><h3>' + sno(1) + 'Pièce inventoriée</h3></div><div class="bd">' + roomPicker("C", st.room, function (r) {
+      var q = cProgress(r); return st.inv[r].closed ? "Clôturée · " + q.done + " article(s) pointé(s)" : q.done + " / " + q.total + " article(s) pointé(s)";
+    }) + '</div></section>' + cTable(p);
+    if (inv.closed) return h;
+    h += st.sel ? cForm() : '<section class="card"><div class="bd">' + scanBox("C", sno(2) + "Identifier l'article sur l'étagère") + '</div></section>';
+    return h + cCloseBlock(p);
+  }
+  function headC() {
+    var st = S.C, inv = st.inv[st.room], p = cProgress(st.room), left = p.total - p.done;
+    var steps = ["Pièce", "Identifier", "Compter", "Écarter les périmés", "Clôturer la pièce"];
+    var cur = inv.closed ? 5 : st.confirmClose ? 4 : st.sel ? (cFormExpired() ? 3 : 2) : 1;
+    var next = inv.closed ? { tone: "ok", label: "Fait", html: ROOMS[st.room].name + " clôturée : stock de départ figé. Passez à la pièce suivante." }
+      : st.confirmClose ? { tone: "warn", label: "À confirmer", html: "Clôture de " + ROOMS[st.room].name + " : relisez le récapitulatif ci-dessous avant de figer le stock de départ." }
+      : st.sel ? { html: "Comptez les unités présentes pour <b>une</b> date de péremption, puis <kbd>Entrée</kbd>. Une autre date sur l'étagère = une nouvelle ligne." }
+      : { html: "Bipez l'article sur l'étagère, ou « Compter » dans la liste. " + (left ? left + " article(s) restent à compter ici." : "Tous les articles connus sont pointés : vous pouvez clôturer la pièce.") };
+    return flowHead("C", "Inventaire initial guidé",
+      "Mode ponctuel pour démarrer l'outil pendant l'inventaire de fin 2026, pièce par pièce. On saisit la quantité réellement présente, par date de péremption. Les produits déjà périmés ne sont pas saisis dans le stock de départ. Ce n'est pas un flux quotidien.",
+      stepper(steps, cur), next);
+  }
+  function cTable(p) {
+    var st = S.C, inv = st.inv[st.room];
+    return '<section class="card"><div class="hd"><h3>Pointage · ' + ROOMS[st.room].name + '</h3><span class="spacer"></span><span class="small muted">' + p.done + ' / ' + p.total + ' article(s) pointé(s)</span></div>' +
+      '<div class="bd stack"><div class="progress" role="img" aria-label="' + p.done + ' articles pointés sur ' + p.total + '"><i style="width:' + (p.total ? Math.round(100 * p.done / p.total) : 0) + '%"></i></div>' +
+      '<div class="table-wrap"><table><thead><tr><th>Article</th><th class="num">Compté</th><th>Lignes pointées</th><th>État</th><th><span class="sr-only">Action</span></th></tr></thead><tbody>' +
+      cArticles(st.room).map(function (a) {
+        var ls = inv.lines.filter(function (l) { return l.articleId === a.id; });
+        var tot = ls.filter(function (l) { return !l.excluded; }).reduce(function (s, l) { return s + l.qty; }, 0);
+        return '<tr' + (st.sel === a.id ? ' class="sel"' : '') + '><td><b>' + esc(a.name) + '</b><div class="small muted">' + esc(a.format) + '</div></td><td class="num">' + (ls.length ? tot : "—") + '</td>' +
+          '<td class="small">' + (ls.length ? ls.map(function (l) {
+            return '<div class="row" style="gap:6px">' + (l.excluded ? '<span class="badge b-err">Écarté · périmé</span>' : '') +
+              '<span>' + l.qty + (a.exp ? ' · ' + fr(l.expiry) : '') + (l.lot ? ' · lot ' + esc(l.lot) : '') + '</span>' +
+              (inv.closed ? '' : '<button type="button" class="btn ghost danger sm" data-act="c-del" data-id="' + l.id + '" aria-label="Retirer la ligne ' + l.qty + (a.exp ? ' au ' + fr(l.expiry) : '') + ', ' + esc(label(a)) + '">Retirer</button>') + '</div>';
+          }).join("") : '<span class="muted">—</span>') + '</td>' +
+          '<td>' + (ls.length ? '<span class="badge b-ok">Pointé</span>' : '<span class="badge b-none">À compter</span>') + '</td>' +
+          '<td style="text-align:right">' + (inv.closed ? '' : '<button type="button" class="btn ghost sm" data-act="pick" data-flow="C" data-id="' + a.id + '">' + (ls.length ? 'Ajouter une ligne' : 'Compter') + '</button>') + '</td></tr>';
+      }).join("") + '</tbody></table></div></div></section>';
+  }
+  function cForm() {
+    var st = S.C, a = art(st.sel), f = st.form, e = st.err || {}, expd = cFormExpired();
+    return '<section class="card"><div class="hd"><h3>' + sno(3) + 'Compter : ' + esc(label(a)) + '</h3><span class="spacer"></span><button type="button" class="btn ghost" data-act="c-back">← Autre article <kbd>Échap</kbd></button></div><div class="bd">' +
+      '<form data-form="c-count" class="stack" autocomplete="off" novalidate>' + (e._sum ? '<div class="notice err" role="alert"><span>' + esc(e._sum) + '</span></div>' : '') + '<div class="fields">' +
+      field("Quantité présente", '<input type="number" inputmode="numeric" min="0" step="1" id="c-qty" data-input="c" data-k="qty" value="' + esc(f.qty) + '"' + inv(e.qty, "c-qty") + '>', e.qty, "c-qty", "0 si absent") +
+      (a.exp ? field("Date de péremption", '<input type="date" id="c-exp" data-input="c" data-k="expiry" value="' + esc(f.expiry) + '"' + inv(e.expiry, "c-exp") + '>', e.expiry, "c-exp", "de cette ligne")
+             : staticField("Péremption", badge(null, null, true))) +
+      '<div class="f" id="c-reason-wrap">' + cReason(expd) + '</div>' +
+      field("N° de lot", '<input type="text" id="c-lot" data-input="c" data-k="lot" value="' + esc(f.lot) + '">', null, "c-lot", "facultatif · à valider") +
+      '</div><div id="c-exp-state" class="stack">' + cExpState(a) + '</div>' +
+      '<div class="row"><button class="btn primary big" type="submit" id="c-submit">' + (expd ? 'Écarter cette ligne périmée' : 'Pointer cette ligne') + '</button>' +
+      '<span class="small muted"><kbd>Entrée</kbd> pointe · plusieurs dates : une ligne par date</span></div></form></div></section>';
+  }
+  function cReason(expd) {
+    var f = S.C.form;
+    return '<label for="c-reason">Si périmé : motif <span class="opt">trace de perte · proposition</span></label><select id="c-reason" data-input="c" data-k="reason"' + (expd ? '' : ' disabled') + '>' +
+      ["Périmé : à détruire", "Périmé : retour fournisseur", "Autre (à préciser)"].map(function (r) { return '<option' + (f.reason === r ? ' selected' : '') + '>' + r + '</option>'; }).join("") + '</select>';
+  }
+  function cExpState(a) {
+    var st = S.C, f = st.form, out;
+    if (!a.exp) out = '<p class="small muted">Article sans péremption : seule la quantité compte.</p>';
+    else if (!f.expiry || expiryError(f.expiry)) out = '<p class="small muted">Saisir la date lue sur l\'emballage.</p>';
+    else {
+      var s = expStatus(f.expiry, st.room);
+      out = s === "expired" ? '<div class="notice err"><span><b>Déjà périmé (' + relDays(f.expiry) + ') :</b> cette ligne n\'entre pas dans le stock de départ. Elle est notée comme écartée, avec son motif.</span></div>'
+        : s === "soon" ? '<div class="notice warn"><span><b>Péremption proche :</b> ' + relDays(f.expiry) + '. La ligne entre en stock avec un badge d\'alerte.</span></div>'
+        : '<p class="small muted">' + badge(f.expiry, st.room) + ' Péremption au ' + fr(f.expiry) + ' (' + relDays(f.expiry) + ').</p>';
+    }
+    var same = st.inv[st.room].lines.filter(function (l) { return l.articleId === a.id && !l.excluded && (a.exp ? f.expiry && l.expiry === f.expiry : true); });
+    if (same.length) {
+      var tot = same.reduce(function (s, l) { return s + l.qty; }, 0);
+      out += '<div class="notice info"><span><b>Déjà pointé :</b> ' + tot + (a.exp ? ' au ' + fr(f.expiry) : '') + '. Ce comptage s\'ajoutera (même article sur une autre étagère). S\'il s\'agit d\'un recomptage, retirez d\'abord l\'ancienne ligne.</span></div>';
+    }
+    return out;
+  }
+  function pickC(id) {
+    var st = S.C; if (st.inv[st.room].closed) return;
+    st.sel = id; st.err = null; st.confirmClose = false; st.form = { qty: "", expiry: "", lot: "", reason: "Périmé : à détruire" };
+    render(); focusLater("#c-qty");
+  }
+  function countC() {
+    var st = S.C, a = art(st.sel), f = st.form, e = {}, q = qtyCheck(f.qty, true);
+    if (q) e.qty = QMSG[q];
+    if (a.exp) { var x = expiryError(f.expiry); if (x) e.expiry = x; }
+    var keys = Object.keys(e);
+    if (keys.length) {
+      e._sum = keys.length === 1 ? "Un champ est à corriger avant de pointer." : "Deux champs sont à corriger avant de pointer.";
+      st.err = e; render(); focusLater(keys[0] === "qty" ? "#c-qty" : "#c-exp"); return;
+    }
+    var excluded = a.exp && expStatus(f.expiry, st.room) === "expired";
+    st.inv[st.room].lines.push({ id: nid("c"), articleId: a.id, qty: +f.qty, expiry: a.exp ? f.expiry : null, lot: f.lot.trim(), excluded: excluded, reason: excluded ? f.reason : "" });
+    addLog("C", (excluded ? "Écarté (" + f.reason.toLowerCase() + ") " : "Pointé ") + f.qty + " × " + label(a));
+    toast(excluded ? "Ligne périmée écartée du stock de départ : " + f.qty + " × " + label(a) + "." : "Pointé : " + f.qty + " × " + label(a) + ".");
+    st.sel = null; st.form = null; st.err = null;
+    render(); focusLater(entryFocus("C"));
+  }
+  function cCloseBlock(p) {
+    var st = S.C, r = st.room, inv = st.inv[r], missing = p.total - p.done;
+    var kept = inv.lines.filter(function (l) { return !l.excluded; }).reduce(function (s, l) { return s + l.qty; }, 0);
+    var ex = inv.lines.filter(function (l) { return l.excluded; }).reduce(function (s, l) { return s + l.qty; }, 0);
+    var others = stock.filter(function (l) { return l.room === r && l.src !== "départ"; }).length;
+    if (st.confirmClose) {
+      return '<section class="card" style="border-color:var(--amber-line)"><div class="hd"><h3>' + sno(5) + 'Clôturer ' + ROOMS[r].name + ' ?</h3></div><div class="bd stack">' +
+        '<div class="kpis">' + kpi("Articles pointés", p.done + " / " + p.total) + kpi("Unités en stock de départ", kept, "ok") + kpi("Unités périmées écartées", ex, ex ? "err" : "") +
+        kpi("Articles non comptés", missing, missing ? "warn" : "") + '</div><ul class="q small">' +
+        (missing ? '<li><b>' + missing + ' article(s) non compté(s)</b> seront considérés comme absents de la pièce (stock 0) : à confirmer en atelier.</li>' : '') +
+        (st.sel ? '<li><b>Une ligne est en cours de saisie</b> (' + esc(label(art(st.sel))) + ') : pointez-la d\'abord, sinon elle sera ignorée.</li>' : '') +
+        '<li>Le stock de départ de ' + ROOMS[r].name + ' devient le comptage et remplace le stock fictif de la démo' + (others ? ', y compris ' + others + ' entrée(s) faite(s) en A, B ou D dans cette pièce' : '') + '.</li>' +
+        '<li>La pièce est ensuite figée : plus de pointage possible (démo).</li></ul>' +
+        '<div class="row"><button type="button" class="btn primary" data-act="c-close-yes" id="c-close-yes">Confirmer la clôture</button><button type="button" class="btn" data-act="c-close-no" id="c-close-no">Revenir au comptage</button></div></div></section>';
+    }
+    return '<div class="row"><button type="button" class="btn big" data-act="c-close" id="c-close"' + (p.done ? '' : ' aria-disabled="true"') + ' aria-describedby="c-close-why">Clôturer la pièce ' + ROOMS[r].name + '…</button>' +
+      '<span class="small muted" id="c-close-why">' + (p.done ? 'Un récapitulatif s\'affiche avant de figer le stock de départ.' : 'Pointez au moins un article avant de clôturer.') + '</span></div>';
+  }
+  function closeC() {
+    var r = S.C.room, inv = S.C.inv[r], p = cProgress(r), kept = 0, ex = 0;
+    stock = stock.filter(function (l) { return l.room !== r; });
+    inv.lines.forEach(function (l) {
+      if (l.excluded) { ex += l.qty; return; }
+      if (l.qty > 0) stock.push({ id: nid("l"), articleId: l.articleId, room: r, qty: l.qty, entry: TODAY_ISO, expiry: l.expiry, lot: l.lot, src: "C · départ" });
+      kept += l.qty;
+    });
+    inv.closed = true; S.C.confirmClose = false; S.C.sel = null; S.C.form = null; S.C.unknown = null;
+    addLog("C", ROOMS[r].name + " clôturée : " + kept + " unité(s) en stock de départ, " + ex + " périmée(s) écartée(s), " + (p.total - p.done) + " article(s) non compté(s)");
+    toast(ROOMS[r].name + " clôturée : " + kept + " unités en stock de départ, " + ex + " périmées écartées.");
+    render(); focusLater("#room-C-" + r);
+  }
+
+  /* ---------- Comparer ---------- */
+  function viewCmp() {
+    var rows = [
+      ["Usage", "Petites livraisons régulières (pharmacie, consommables)", "Livraisons multi-références (papeterie, grosses commandes)", "Une fois, à l'inventaire de fin 2026", "Les livraisons de B, avec le moins de champs possible"],
+      ["Étapes", "Pièce → scan → vérifier → quantité/péremption → ranger", "Créer → lignes → corriger → contrôler → valider", "Pièce → identifier → compter → écarter les périmés → clôturer", "Pièce → ajouter chaque article (quantité, date) → relire et valider"],
+      ["Rapidité perçue (à mesurer en essai)", "Très rapide par article", "Rapide, plus un contrôle final", "Dépend du comptage", "Rapide par article ; une relecture à la fin"],
+      ["Risque d'oubli", "Faible si le poste est près de la réserve", "Brouillon non validé = stock pas à jour", "Pièce non clôturée", "Liste non validée = stock pas à jour"],
+      ["Vue d'ensemble de la livraison", "Non", "Oui, comparable au bon de livraison", "Par pièce", "Oui, une petite liste"],
+      ["Exceptions (code inconnu, doublon, date)", "Traitées sur le moment, une à une", "Signalées ligne par ligne ; lignes rouges bloquantes", "Périmés écartés avec motif ; article absent créé sur place", "Deux avertissements : date dépassée (non ajouté), pièce inhabituelle (signalée)"],
+      ["Correction", "Annuler la dernière entrée", "Ligne par ligne, sans tout recommencer", "Retirer une ligne pointée avant clôture", "Retirer la ligne et la ressaisir"],
+      ["Champs saisis", "Quantité, péremption si applicable", "Quantité et péremption par ligne", "Quantité, péremption, motif si périmé", "Quantité, date si applicable ; ni lot ni bon de livraison"],
+      ["Limites", "Poste accessible pendant le rangement ; lent pour 30 références", "Écran plus riche ; tentation de saisir plus tard", "Temps sur site ; dédoublonner l'ancien Excel", "Pas de correction sur place ni de détection de doublon ; jamais essayé par l'équipe"]
+    ];
+    var qs = [
+      "Numéro de lot : absent, facultatif, ou obligatoire pour la pharmacie ?",
+      "Délai d'alerte de 3 mois pour médicaments/vaccins : convient-il ? Faut-il une alerte pour les consommables qui périment ?",
+      "Alertes : uniquement dans l'outil, ou aussi un e-mail récapitulatif (à qui, à quelle fréquence) ?",
+      "Produit reçu déjà périmé : le mettre de côté et le tracer (perte, retour fournisseur), ou simplement ne pas le saisir ?",
+      "Date absente ou illisible sur un article qui en a normalement une : bloquer la saisie, ou l'accepter avec un badge « à vérifier » ?",
+      "Fiche article : garder le réglage « date de péremption oui/non » (prérempli selon la pièce) en plus de la désignation et du format ?",
+      "Le poste fixe est-il dans la réserve ? Faut-il un lecteur sans fil ? Modèle de lecteur USB à confirmer.",
+      "Tous les produits ont-ils un code-barres lisible ? Sinon, étiquettes internes ?",
+      "Réception B : référence du bon de livraison utile ? Que faire d'un brouillon non validé (rappel) ?",
+      "Inventaire C : reprend-on la liste d'articles de l'ancien Excel ? Garde-t-on la trace des périmés écartés ? Un article non compté à la clôture vaut-il 0 ?",
+      "Faut-il identifier la personne qui saisit (traçabilité) ?",
+      "Piste D : vaut-elle un essai ? Si oui : un même article ajouté deux fois doit-il être cumulé ? La péremption d'un nouvel article peut-elle suivre la pièce ? La date d'entrée = jour de la saisie suffit-elle ?",
+      "Sorties de stock et pertes : même simplicité de saisie (hors maquette, à cadrer ensuite)."
+    ];
+    return '<section class="fhead-wrap" aria-labelledby="h-cmp"><div class="fhead"><div><h2 id="h-cmp">Comparer les parcours</h2>' +
+      '<p class="lead">Les parcours partagent le même modèle : un article (désignation + format) et des entrées (pièce, quantité, date d\'entrée, péremption si applicable). Le choix peut donc se faire par pièce ou par type de livraison.</p></div></div></section>' +
+      '<section class="card reco"><div class="bd stack"><h3>Recommandation provisoire, à tester avec Leila Dizi</h3>' +
+      '<p>Hybride : <b>A</b> pour les petites livraisons régulières, <b>B</b> pour les livraisons groupées, <b>C</b> une seule fois pour l\'inventaire initial. Ce n\'est pas une décision : à confirmer après essai sur de vraies livraisons, en comparant A et B sur la rapidité et le risque d\'oubli.</p>' +
+      '<p class="small"><span class="badge b-piste">Piste D</span> La réception simple (D) n\'entre pas dans cette recommandation : c\'est une piste à explorer, non validée, montrée pour en discuter.</p></div></section>' +
+      '<section class="card"><div class="table-wrap"><table class="cmp"><thead><tr><th scope="col"><span class="sr-only">Critère</span></th><th scope="col">A. Scanner et ranger</th><th scope="col">B. Réception groupée</th><th scope="col">C. Inventaire initial</th>' +
+      '<th scope="col" class="col-d">D. Réception simple <span class="badge b-piste">piste non validée</span></th></tr></thead><tbody>' +
+      rows.map(function (r) { return '<tr><th scope="row">' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td><td>' + esc(r[3]) + '</td><td class="col-d">' + esc(r[4]) + '</td></tr>'; }).join("") +
+      '</tbody></table></div></section>' +
+      '<section class="card"><div class="hd"><h3>Questions à trancher en atelier</h3></div><div class="bd"><ol class="q">' + qs.map(function (q) { return '<li>' + esc(q) + '</li>'; }).join("") + '</ol></div></section>' +
+      '<section class="card"><div class="hd"><h3>Hors périmètre phase 1</h3></div><div class="bd small">Cabinets individuels (phase 2) · Mediway (aucun connecteur, import ni synchronisation) · Odoo (écarté) · Slack/Teams · application mobile ou tablette prioritaire.</div></section>';
+  }
+
+  /* ---------- Parcours D : réception simple (piste à explorer, non validée) ---------- */
+  function headD() {
+    var st = S.D, n = st.lines.length, a = st.sel ? art(st.sel) : null;
+    var cur = !st.room ? 0 : !n ? (st.flash ? 3 : 1) : a || st.unknown ? 1 : 2;
+    var next = !st.room ? { html: "Choisissez la pièce où la livraison sera rangée." }
+      : st.flash && !n && !a && !st.unknown ? { tone: "ok", label: "Fait", html: "Réception <b>" + esc(st.flash.id) + "</b> validée : " + st.flash.n + " ligne(s), " + st.flash.units + " unité(s) rangées en " + ROOMS[st.flash.room].name + "." }
+      : a ? { html: "Saisissez la quantité" + (a.exp ? " et la date lue sur l'emballage" : "") + ", puis « Ajouter »." }
+      : st.unknown ? { html: "Article inconnu : donnez sa désignation et son format, puis continuez." }
+      : !n ? { html: "Bipez ou recherchez le premier article de la livraison." }
+      : { html: "Ajoutez l'article suivant, ou relisez la liste et validez la réception." };
+    // En-tête propre à D : rappel « piste » et hypothèse du lecteur en texte discret, sans encadré
+    return '<section class="fhead-wrap flow-d d-head" aria-labelledby="h-D"><div class="fhead"><div>' +
+      '<h2 id="h-D"><span class="fk d" aria-hidden="true">D</span><span><span class="sr-only">Parcours D : </span>Réception simple</span><span class="badge b-piste">Piste à explorer — non validée</span></h2>' +
+      '<p class="note">Réception groupée réduite au minimum, proposée pour la discussion : ce n\'est pas une décision, A, B et C restent les propositions de référence. ' +
+      'Hypothèse à confirmer : lecteur USB qui saisit comme un clavier ; le code-barres donne la référence, jamais la date ni le lot.</p></div></div>' +
+      stepper(["Choisir la pièce", "Ajouter les articles", "Relire et valider"], cur) +
+      '<div class="next ' + (next.tone || "") + '"><span class="lbl">' + (next.label || "Prochaine étape") + '</span><span>' + next.html + '</span></div></section>';
+  }
+  function viewD() {
+    var st = S.D;
+    var h = headD() + '<section class="card"><div class="hd"><h3>' + sno(1) + 'Pièce</h3><span class="spacer"></span><span class="small muted">entrée du ' + fr(TODAY_ISO) + '</span></div>' +
+      '<div class="bd">' + roomPicker("D", st.room) + '</div></section>';
+    if (st.room) h += '<div class="d-work">' + dAddCard() + dListCard() + '</div>';
+    return h;
+  }
+  function dShowResults(q) { q = String(q || "").trim(); return !!q && !/^\d+$/.test(q); } // un code en cours de frappe n'affiche pas de liste
+  function dResultsHtml(q) {
+    var res = searchCat(q);
+    if (res.length) return resultsHtml("D", res);
+    return '<li class="small" style="padding:8px 12px">Aucun article trouvé. <button type="button" class="btn ghost sm" data-act="d-newfiche">+ Créer une fiche courte « ' + esc(q.trim()) + ' »</button></li>';
+  }
+  function dAddCard() {
+    var st = S.D, h = '<section class="card"><div class="hd"><h3>' + sno(2) + 'Ajouter un article</h3></div><div class="bd stack">';
+    if (st.unknown) return h + dFiche() + '</div></section>';
+    if (st.sel) return h + dAddForm() + '</div></section>';
+    var show = dShowResults(st.q);
+    return h + '<form data-form="d-find" class="scanrow" autocomplete="off" novalidate>' +
+      '<label class="f" for="scan-D">Code-barres ou nom de l\'article <span class="hint">le lecteur tape le code puis « Entrée » ; sinon, tapez un nom</span></label>' +
+      '<div class="inline"><input class="scan" type="text" id="scan-D" data-input="dq" value="' + esc(st.q) + '" placeholder="Bipez, ou tapez « seringue 5 »…" aria-controls="results-D">' +
+      '<button class="btn big" type="submit">Chercher</button></div></form>' +
+      '<ul class="results" id="results-D" aria-label="Résultats de recherche"' + (show ? '' : ' hidden') + '>' + (show ? dResultsHtml(st.q) : '') + '</ul>' +
+      '<details class="sim" id="d-sim"' + (st.simOpen ? ' open' : '') + '><summary>Pas de lecteur sous la main ? Simuler un bip (codes fictifs)</summary>' + simChips("D") + '</details></div></section>';
+  }
+  function dExpired(a) { var f = S.D.form; return !!(a.exp && f && !expiryError(f.expiry) && expStatus(f.expiry, S.D.room) === "expired"); }
+  function dExpState(a) {
+    return dExpired(a) ? '<div class="notice err"><span><b>Date dépassée (' + relDays(S.D.form.expiry) + ') : produit périmé.</b> Il n\'est pas ajouté à la réception ; que faire du produit reste une question ouverte.</span></div>' : '';
+  }
+  function dAddForm() {
+    var st = S.D, a = art(st.sel), f = st.form, e = st.err || {};
+    var h = '<div class="article"><div><div class="name">' + esc(a.name) + '</div><div class="meta">' + esc(a.format) + (a.code ? ' · code <span class="mono">' + esc(a.code) + '</span>' : '') + '</div></div>' +
+      '<div class="qty"><button type="button" class="btn ghost" data-act="d-change">Changer d\'article</button></div></div>';
+    if (a.room !== st.room) h += '<div class="notice warn"><span><b>Article d\'habitude rangé en ' + ROOMS[a.room].name + '.</b> Vérifiez la pièce : cette liste sera rangée en ' + ROOMS[st.room].name + '.</span></div>';
+    return h + '<form data-form="d-add" class="stack" autocomplete="off" novalidate>' +
+      (e._sum ? '<div class="notice err" role="alert"><span>' + esc(e._sum) + '</span></div>' : '') + '<div class="fields">' +
+      field("Quantité", '<input type="number" inputmode="numeric" min="1" step="1" id="d-qty" data-input="dadd" data-k="qty" value="' + esc(f.qty) + '"' + inv(e.qty, "d-qty") + '>', e.qty, "d-qty") +
+      (a.exp ? field("Date de péremption", '<input type="date" id="d-exp" data-input="dadd" data-k="expiry" value="' + esc(f.expiry) + '"' + inv(e.expiry, "d-exp") + '>', e.expiry, "d-exp", "lue et vérifiée sur l'emballage")
+             : staticField("Péremption", badge(null, null, true))) +
+      '</div><div id="d-exp-state">' + dExpState(a) + '</div>' +
+      '<div class="row"><button class="btn primary big" type="submit" id="d-add">Ajouter</button><span class="small muted"><kbd>Entrée</kbd> ajoute l\'article à la liste</span></div></form>';
+  }
+  function dFiche() {
+    var st = S.D, u = st.unknown, e = u.err || {}, v = u.vals || {};
+    return '<form data-form="d-fiche" class="notice warn stack" autocomplete="off" novalidate aria-labelledby="dn-t">' +
+      '<p id="dn-t"><b>' + (u.code ? 'Code inconnu : <span class="mono">' + esc(u.code) + '</span>' : 'Nouvel article') + '</b> — fiche courte : désignation et format.</p><div class="fields">' +
+      field("Désignation / marque", '<input type="text" name="name" id="dn-name" data-k="name" value="' + esc(v.name) + '" placeholder="ex. Pansement DÉMO"' + inv(e.name, "dn-name") + '>', e.name, "dn-name") +
+      field("Format / dosage", '<input type="text" name="format" id="dn-format" data-k="format" value="' + esc(v.format) + '" placeholder="ex. 8 × 10 cm"' + inv(e.format, "dn-format") + '>', e.format, "dn-format") +
+      '</div><p class="small">Date de péremption demandée à l\'ajout : <b>' + (expDefault(st.room) === "1" ? "oui" : "non") + '</b>, selon la pièce (proposition à valider).</p>' +
+      '<div class="row"><button class="btn primary" type="submit">Créer et continuer</button><button type="button" class="btn ghost" data-act="d-change">Annuler</button></div></form>';
+  }
+  function dListCard() {
+    var st = S.D, L = st.lines, busy = !!(st.sel || st.unknown), units = L.reduce(function (s, l) { return s + l.qty; }, 0);
+    var h = '<section class="card"><div class="hd"><h3>' + sno(3) + 'Relire et valider</h3><span class="spacer"></span><span class="small muted">' + L.length + ' ligne(s) · ' + units + ' unité(s)</span></div>';
+    h += !L.length ? '<div class="bd"><p class="small muted">La liste est vide : chaque article ajouté apparaît ici.</p></div>'
+      : '<div class="table-wrap"><table id="d-table"><thead><tr><th>#</th><th>Article</th><th class="num">Quantité</th><th>Péremption</th><th><span class="sr-only">Action</span></th></tr></thead><tbody>' +
+        L.map(function (l, i) {
+          var a = art(l.articleId);
+          return '<tr><td class="mono">' + (i + 1) + '</td><td><b>' + esc(a.name) + '</b><div class="small muted">' + esc(a.format) + '</div>' +
+            (a.room !== st.room ? '<span class="badge b-warn">D\'habitude en ' + ROOMS[a.room].name + '</span>' : '') + '</td>' +
+            '<td class="num">' + l.qty + '</td><td>' + (a.exp ? fr(l.expiry) : '<span class="muted">sans</span>') + '</td>' +
+            '<td style="text-align:right"><button type="button" class="btn ghost danger sm" data-act="d-remove" data-id="' + l.id + '" aria-label="Retirer la ligne ' + (i + 1) + '">Retirer</button></td></tr>';
+        }).join("") + '</tbody></table></div>';
+    var ok = L.length && !busy;
+    return h + '<div class="ft row"><button type="button" class="btn primary big" data-act="d-validate" id="d-validate"' + (ok ? '' : ' aria-disabled="true"') + ' aria-describedby="d-val-why">Valider la réception</button>' +
+      '<span class="small muted" id="d-val-why">' + (!L.length ? "Ajoutez au moins un article." : busy ? "Terminez ou annulez l'article en cours avant de valider."
+        : L.length + " ligne(s), " + units + " unité(s) entrent en stock en " + ROOMS[st.room].name + ".") + '</span></div></section>';
+  }
+  function dFind(raw) {
+    var st = S.D, v = String(raw == null ? "" : raw).trim();
+    if (!st.room || st.sel || st.unknown || !v) return;
+    if (/^\d{8,}$/.test(v)) { // code-barres complet (lecteur ou saisie)
+      var a = byCode(v);
+      if (a) { addLog("D", "Bip …" + v.slice(-4) + " → " + label(a)); dSelect(a.id); return; }
+      st.unknown = { code: v, vals: {}, err: null }; st.q = ""; st.flash = null;
+      addLog("D", "Code inconnu " + v + " : fiche courte proposée");
+      render(); focusLater("#dn-name"); return;
+    }
+    var res = searchCat(v); // sinon : nom, format ou fin de code
+    if (res.length) { dSelect(res[0].id); return; }
+    st.q = v; render(); focusLater("#results-D button");
+    announce("Aucun article trouvé pour « " + v + " ».");
+  }
+  function dSelect(id) {
+    var st = S.D; st.sel = id; st.q = ""; st.unknown = null; st.err = null; st.flash = null; st.form = { qty: "", expiry: "" };
+    render(); focusLater("#d-qty");
+  }
+  function dAdd() {
+    var st = S.D, a = art(st.sel), f = st.form, e = {}, q = qtyCheck(f.qty);
+    if (q) e.qty = QMSG[q];
+    if (a.exp) { var x = expiryError(f.expiry); if (x) e.expiry = x; else if (dExpired(a)) e.expiry = "Date dépassée : produit périmé, non ajouté."; }
+    var keys = Object.keys(e);
+    if (keys.length) {
+      e._sum = keys.length === 1 ? "Un champ est à corriger avant d'ajouter." : "Deux champs sont à corriger avant d'ajouter.";
+      st.err = e; render(); focusLater(keys[0] === "qty" ? "#d-qty" : "#d-exp"); return;
+    }
+    st.lines.push({ id: nid("d"), articleId: a.id, qty: +f.qty, expiry: a.exp ? f.expiry : null });
+    addLog("D", "Ajouté à la liste : " + f.qty + " × " + label(a));
+    announce("Ajouté : " + f.qty + " × " + label(a) + ".");
+    st.sel = null; st.form = null; st.err = null;
+    render(); focusLater("#scan-D");
+  }
+  function dValidate() {
+    var st = S.D, L = st.lines;
+    if (!L.length || st.sel || st.unknown) {
+      announce(!L.length ? "Ajoutez au moins un article avant de valider." : "Terminez ou annulez l'article en cours avant de valider.");
+      focusLater(st.sel ? "#d-qty" : st.unknown ? "#dn-name" : "#scan-D"); return;
+    }
+    var id = recId("D"), units = 0;
+    L.forEach(function (l) {
+      units += l.qty;
+      stock.push({ id: nid("l"), articleId: l.articleId, room: st.room, qty: l.qty, entry: TODAY_ISO, expiry: l.expiry, lot: "", src: "D · " + id });
+    });
+    st.done.unshift({ id: id, room: st.room, date: TODAY_ISO, n: L.length, units: units });
+    st.flash = { id: id, room: st.room, n: L.length, units: units };
+    addLog("D", id + " validée : " + L.length + " ligne(s), " + units + " unité(s) → " + ROOMS[st.room].name);
+    toast("Réception " + id + " validée : " + units + " unités rangées en " + ROOMS[st.room].name + ".");
+    st.lines = []; st.q = "";
+    render(); focusLater("#scan-D");
+  }
+
+  /* ---------- Panneau latéral ---------- */
+  function renderSide() {
+    var room = S.flow === "cmp" ? null : flowRoom(S.flow), rooms = room ? [room] : ROOM_IDS, h = '<h2 class="sr-only">État de la démo</h2>', pend = [];
+    if (S.B.rec) pend.push({ flow: "B", t: "Réception " + S.B.rec.id + " · " + ROOMS[S.B.rec.room].name, d: S.B.rec.lines.length + " ligne(s) en brouillon : stock pas encore à jour" });
+    if (S.D.lines.length) pend.push({ flow: "D", t: "Réception simple · " + ROOMS[S.D.room].name, d: S.D.lines.length + " ligne(s) non validée(s) : stock pas encore à jour" });
+    ROOM_IDS.forEach(function (r) {
+      var iv = S.C.inv[r]; if (!iv.lines.length || iv.closed) return;
+      var p = cProgress(r); pend.push({ flow: "C", room: r, t: "Inventaire · " + ROOMS[r].name, d: p.done + " / " + p.total + " article(s) pointé(s), pièce non clôturée" });
+    });
+    if (pend.length) h += '<section class="card pending"><div class="hd"><h3>En attente</h3><span class="badge b-soon">' + pend.length + '</span><span class="spacer"></span><span class="small muted">reprise après interruption</span></div><ul>' +
+      pend.map(function (p) {
+        var here = S.flow === p.flow && (!p.room || S.C.room === p.room);
+        return '<li><div class="grow"><b>' + p.flow + ' · ' + esc(p.t) + '</b><div class="muted">' + esc(p.d) + '</div></div>' +
+          (here ? '<span class="small muted">ouvert</span>' : '<button type="button" class="btn sm" data-act="goto" data-flow="' + p.flow + '"' + (p.room ? ' data-room="' + p.room + '"' : '') + '>Reprendre</button>') + '</li>';
+      }).join("") + '</ul></section>';
+    h += '<section class="card"><div class="hd"><h3>Stock de la démo</h3><span class="spacer"></span><span class="small muted">' + (room ? ROOMS[room].name : "toutes pièces") + '</span></div>' +
+      '<div class="table-wrap"><table id="stock-table"><thead><tr><th>Article / entrée</th><th class="num">Qté</th><th>Péremption</th></tr></thead><tbody>';
+    var any = false;
+    rooms.forEach(function (r) {
+      var ls = stock.filter(function (l) { return l.room === r; }).sort(function (x, y) { var a = x.expiry || "9999", b = y.expiry || "9999"; return a < b ? -1 : a > b ? 1 : 0; });
+      if (!room) h += '<tr class="grp"><td colspan="3">' + ROOMS[r].name + '</td></tr>';
+      ls.forEach(function (l) {
+        any = true; var a = art(l.articleId);
+        h += '<tr><td>' + esc(a.name) + '<div class="small muted">' + esc(a.format) + ' · entrée ' + fr(l.entry) + (l.lot ? ' · lot ' + esc(l.lot) : '') + ' · ' + esc(l.src) + '</div></td>' +
+          '<td class="num">' + l.qty + '</td><td>' + (a.exp ? fr(l.expiry) + '<br>' : '') + badge(l.expiry, l.room, !a.exp) + '</td></tr>';
+      });
+    });
+    if (!any) h += '<tr><td colspan="3" class="small muted">Aucune entrée.</td></tr>';
+    h += '</tbody></table></div><div class="bd small muted" style="padding-top:8px">Une ligne = une entrée (réception d\'un lot). Un même article peut avoir plusieurs entrées et plusieurs péremptions.</div></section>';
+    h += '<section class="card"><div class="hd"><h3>Réglages proposés</h3><span class="spacer"></span><span class="badge b-soon">À valider</span></div><div class="bd">' +
+      ROOM_IDS.map(function (r) {
+        return '<div class="setting"><label for="set-' + r + '">Alerte péremption · ' + ROOMS[r].name + '</label><select id="set-' + r + '" data-input="setting" data-room="' + r + '">' +
+          [[0, "Aucune"], [1, "1 mois avant"], [2, "2 mois avant"], [3, "3 mois avant"], [6, "6 mois avant"]].map(function (o) {
+            return '<option value="' + o[0] + '"' + (settings.alert[r] === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
+          }).join("") + '</select></div>';
+      }).join("") +
+      '<p class="small muted" style="margin-top:8px">3 mois pour médicaments/vaccins : proposition issue du call, pas une règle réglementaire. Alerte visuelle dans l\'outil ; e-mail à étudier.</p></div></section>';
+    h += '<section class="card"><div class="hd"><h3>Journal de la démo</h3><span class="spacer"></span><span class="small muted">en mémoire</span></div><div class="bd">' +
+      (log.length ? '<ul class="log" id="log">' + log.slice(0, 10).map(function (e) { return '<li><span class="tm">' + e.tm + '</span><span><b>' + e.flow + ' · </b>' + esc(e.text) + '</span></li>'; }).join("") + '</ul>'
+        : '<p class="small muted">Les actions de la démo s\'affichent ici.</p>') + '</div></section>';
+    $("#side").innerHTML = h;
+  }
+
+  /* ---------- Rendu ---------- */
+  function render() {
+    stopSim();
+    var act = document.activeElement, actId = act && act !== document.body && act.id ? act.id : null, sel = null;
+    try { if (actId && (act.type === "text" || act.type === "search")) sel = act.selectionStart; } catch (err) { sel = null; }
+    document.querySelectorAll(".flows [role=tab]").forEach(function (b) {
+      var f = b.getAttribute("data-flow"), on = f === S.flow;
+      var draft = (f === "B" && !!S.B.rec) || (f === "D" && S.D.lines.length > 0) || (f === "C" && ROOM_IDS.some(function (r) { return S.C.inv[r].lines.length && !S.C.inv[r].closed; }));
+      b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; b.setAttribute("data-draft", draft ? "1" : "0");
+      var dot = b.querySelector(".dot"); if (dot) dot.innerHTML = draft ? '<span class="sr-only">, travail en attente</span>' : '';
+    });
+    var v = $("#view");
+    v.setAttribute("aria-labelledby", "tab-" + S.flow);
+    v.innerHTML = S.flow === "A" ? viewA() : S.flow === "B" ? viewB() : S.flow === "C" ? viewC() : S.flow === "D" ? viewD() : viewCmp();
+    var noSide = S.flow === "D"; // D : écran réduit aux trois gestes, sans les panneaux de démonstration
+    $(".layout").classList.toggle("no-side", noSide);
+    $("#side").hidden = noSide;
+    if (!noSide) renderSide();
+    if (actId) {
+      var n = document.getElementById(actId);
+      if (n && n !== document.activeElement) { n.focus({ preventScroll: true }); if (sel != null) { try { n.setSelectionRange(sel, sel); } catch (err) { /* champ sans sélection */ } } }
+    }
+  }
+
+  /* ---------- Simulation du lecteur USB (« clavier ») ---------- */
+  var simTimer = null, simPending = false;
+  function stopSim() { if (simTimer) { clearInterval(simTimer); simTimer = null; } }
+  function simulateScan(flow, code, done) {
+    stopSim();
+    var input = $("#scan-" + flow);
+    if (!input) { onCode(flow, code); if (done) done(); return; }
+    input.focus(); input.value = "";
+    var i = 0, alive = function () { return document.body.contains(input) && S.flow === flow; };
+    simPending = true;
+    simTimer = setInterval(function () {
+      if (!alive()) { stopSim(); simPending = false; if (done) done(); return; }
+      input.value += code.charAt(i); i += 1;
+      if (i >= code.length) {
+        stopSim();
+        setTimeout(function () {
+          simPending = false;
+          if (alive()) { var v = input.value; input.value = ""; onCode(flow, v); }
+          if (done) done();
+        }, 50);
+      }
+    }, 12);
+  }
+  function onCode(flow, raw) {
+    var code = String(raw || "").trim(); if (!code) return;
+    if (flow === "D") { dFind(code); return; }
+    if ((flow === "A" && (!S.A.room || S.A.phase !== "scan")) || (flow === "B" && !S.B.rec) || (flow === "C" && (S.C.inv[S.C.room].closed || S.C.sel))) return;
+    var a = byCode(code);
+    if (!a) {
+      S[flow].unknown = { code: code };
+      addLog(flow, "Code inconnu " + code + " : fiche minimale proposée");
+      render(); focusLater("#new-" + flow + "-name"); return;
+    }
+    addLog(flow, "Bip …" + code.slice(-4) + " → " + label(a));
+    onPick(flow, a.id);
+  }
+  function onPick(flow, id) {
+    S[flow].search = "";
+    if (flow === "D") { dSelect(id); return; }
+    S[flow].unknown = null;
+    if (flow === "A") pickA(id); else if (flow === "B") pickB(id); else if (flow === "C") pickC(id);
+  }
+  function updateResults(flow) {
+    var res = searchCat(S[flow].search), ul = $("#results-" + flow), c = $("#results-count-" + flow);
+    if (ul) ul.innerHTML = resultsHtml(flow, res);
+    if (c) c.textContent = res.length + " résultat(s)";
+  }
+  function goBackA() { S.A.phase = "scan"; S.A.form = null; S.A.err = null; render(); focusLater(entryFocus("A")); }
+  function goBackC() { S.C.sel = null; S.C.form = null; S.C.err = null; render(); focusLater(entryFocus("C")); }
+  function clearFieldError(st, key, el, formSel) {
+    if (!st.err || !st.err[key]) return;
+    delete st.err[key];
+    el.removeAttribute("aria-invalid"); el.removeAttribute("aria-describedby");
+    var m = document.getElementById(el.id + "-err"); if (m) m.remove();
+    if (!Object.keys(st.err).some(function (x) { return x !== "_sum"; })) { var s = $(formSel + " > .notice.err"); if (s) s.remove(); st.err = null; }
+  }
+
+  /* ---------- Événements ---------- */
+  document.addEventListener("click", function (e) {
+    var tab = e.target.closest(".flows [role=tab]");
+    if (tab) {
+      S.flow = tab.getAttribute("data-flow"); render();
+      if (e.detail > 0 && S.flow !== "cmp") { var f0 = $(entryFocus(S.flow)); if (f0) f0.focus(); } // souris : prêt à scanner ; clavier : le focus reste sur l'onglet
+      return;
+    }
+    var b = e.target.closest("[data-act]"); if (!b || b.disabled) return;
+    var act = b.getAttribute("data-act"), flow = b.getAttribute("data-flow"), id = b.getAttribute("data-id"), ln, r;
+    switch (act) {
+      case "room":
+        r = b.getAttribute("data-room");
+        if (flow === "A") { S.A.room = r; render(); focusLater(S.A.phase === "form" ? "#a-qty" : entryFocus("A")); }
+        else if (flow === "B") { S.B.room = r; if (S.B.err) delete S.B.err.room; render(); focusLater("#room-B-" + r); }
+        else if (flow === "C") { S.C.room = r; S.C.sel = null; S.C.form = null; S.C.unknown = null; S.C.err = null; S.C.confirmClose = false; render(); focusLater(S.C.inv[r].closed ? "#room-C-" + r : entryFocus("C")); }
+        else if (flow === "D") { S.D.room = r; S.D.flash = null; render(); focusLater(S.D.sel ? "#d-qty" : S.D.unknown ? "#dn-name" : "#scan-D"); }
+        break;
+      case "goto":
+        S.flow = flow; if (b.getAttribute("data-room")) { S.C.room = b.getAttribute("data-room"); S.C.sel = null; S.C.form = null; }
+        render(); focusLater(entryFocus(flow)); break;
+      case "mode": S[flow].manual = b.getAttribute("data-manual") === "1"; render(); focusLater(entryFocus(flow)); break;
+      case "sim": simulateScan(flow, b.getAttribute("data-code")); break;
+      case "pick": onPick(flow, id); break;
+      case "newart": S[flow].unknown = { code: "" }; render(); focusLater("#new-" + flow + "-name"); break;
+      case "cancelnew": addLog(flow, "Création de fiche annulée"); S[flow].unknown = null; render(); focusLater(entryFocus(flow)); break;
+      case "a-back": goBackA(); break;
+      case "a-room": S.A.room = b.getAttribute("data-room"); render(); focusLater("#a-qty"); break;
+      case "a-reject": rejectA(); break;
+      case "a-undo":
+        var li = liveA(); if (li < 0) break;
+        var en = S.A.last[li], lo = lotById(en.lotId);
+        stock = stock.filter(function (l) { return l.id !== en.lotId; }); en.undone = true;
+        addLog("A", "Annulé : " + lo.qty + " × " + label(art(lo.articleId)));
+        toast("Entrée annulée : " + lo.qty + " × " + label(art(lo.articleId)) + ".");
+        render(); focusLater(liveA() >= 0 ? "#a-undo" : S.A.phase === "form" ? "#a-qty" : S.A.room ? entryFocus("A") : "#room-A-pharma"); break;
+      case "b-cancel": S.B.confirmCancel = true; render(); focusLater("#b-cc-no"); break;
+      case "b-cancel-no": S.B.confirmCancel = false; render(); focusLater("#b-cancel"); break;
+      case "b-cancel-yes":
+        addLog("B", "Brouillon " + S.B.rec.id + " abandonné (" + S.B.rec.lines.length + " ligne(s), rien rangé)");
+        toast("Brouillon abandonné : rien n'a été rangé.");
+        S.B.rec = null; S.B.confirmCancel = false; S.B.unknown = null; render(); focusLater("#b-create"); break;
+      case "b-del":
+        ln = S.B.rec.lines.filter(function (l) { return l.id === id; })[0];
+        S.B.rec.lines = S.B.rec.lines.filter(function (l) { return l.id !== id; });
+        addLog("B", "Ligne supprimée : " + label(art(ln.articleId))); toast("Ligne supprimée : " + label(art(ln.articleId)) + ".");
+        render(); focusLater(entryFocus("B")); break;
+      case "b-merge":
+        var lines = S.B.rec.lines; ln = lines.filter(function (l) { return l.id === id; })[0];
+        var target = lines[bIssues(ln, lines, S.B.rec.room).dupOf];
+        target.qty = String((qtyOk(target.qty) ? +target.qty : 0) + (qtyOk(ln.qty) ? +ln.qty : 0));
+        S.B.rec.lines = lines.filter(function (l) { return l !== ln; });
+        addLog("B", "Doublon cumulé : " + label(art(ln.articleId)) + " → " + target.qty);
+        toast("Lignes cumulées : " + target.qty + " × " + label(art(ln.articleId)) + ".");
+        render(); focusLater("#b-qty-" + target.id); break;
+      case "b-validate": validateB(); break;
+      case "c-back": goBackC(); break;
+      case "c-del":
+        var inv = S.C.inv[S.C.room], cl = inv.lines.filter(function (l) { return l.id === id; })[0];
+        inv.lines = inv.lines.filter(function (l) { return l.id !== id; });
+        addLog("C", "Ligne retirée : " + cl.qty + " × " + label(art(cl.articleId)));
+        toast("Ligne retirée du pointage : " + cl.qty + " × " + label(art(cl.articleId)) + ".");
+        render(); focusLater(S.C.sel ? "#c-qty" : entryFocus("C")); break;
+      case "c-close":
+        if (b.getAttribute("aria-disabled") === "true") { announce("Pointez au moins un article avant de clôturer."); focusLater(entryFocus("C")); break; }
+        S.C.confirmClose = true; render(); focusLater("#c-close-no"); break;
+      case "c-close-no": S.C.confirmClose = false; render(); focusLater("#c-close"); break;
+      case "c-close-yes": closeC(); break;
+      case "d-change": S.D.sel = null; S.D.unknown = null; S.D.err = null; S.D.form = null; render(); focusLater("#scan-D"); break;
+      case "d-newfiche":
+        S.D.unknown = { code: "", vals: { name: S.D.q.trim() }, err: null }; S.D.q = "";
+        render(); focusLater(S.D.unknown.vals.name ? "#dn-format" : "#dn-name"); break;
+      case "d-remove":
+        ln = S.D.lines.filter(function (l) { return l.id === id; })[0]; if (!ln) break;
+        S.D.lines = S.D.lines.filter(function (l) { return l !== ln; });
+        addLog("D", "Ligne retirée : " + ln.qty + " × " + label(art(ln.articleId)));
+        announce("Ligne retirée."); render(); focusLater(S.D.sel ? "#d-qty" : S.D.unknown ? "#dn-name" : "#scan-D"); break;
+      case "d-validate": dValidate(); break;
+    }
+  });
+
+  document.addEventListener("submit", function (e) {
+    var f = e.target, kind = f.getAttribute("data-form"), flow = f.getAttribute("data-flow");
+    e.preventDefault();
+    if (kind === "scan") { var inp = f.querySelector("input"), v = inp.value; inp.value = ""; onCode(flow, v); }
+    else if (kind === "a-confirm") confirmA();
+    else if (kind === "c-count") countC();
+    else if (kind === "b-create") createB();
+    else if (kind === "newart") {
+      var r = readNewArt(f), u = S[flow].unknown;
+      if (!r.ok) { u.vals = r.vals; u.err = r.err; render(); focusLater("#new-" + flow + (r.err.name ? "-name" : "-format")); return; }
+      var a = createArticle(r.vals, u.code, flowRoom(flow), flow);
+      toast("Fiche article créée : " + label(a) + ".");
+      onPick(flow, a.id);
+    }
+    else if (kind === "d-find") dFind(f.querySelector("input").value);
+    else if (kind === "d-add") dAdd();
+    else if (kind === "d-fiche") {
+      var rf = readNewArt(f), uu = S.D.unknown;
+      if (!rf.ok) { uu.vals = rf.vals; uu.err = rf.err; render(); focusLater(rf.err.name ? "#dn-name" : "#dn-format"); return; }
+      rf.vals.exp = expDefault(S.D.room); // fiche courte : la péremption suit la pièce (proposition à valider)
+      var nd = createArticle(rf.vals, uu.code, S.D.room, "D");
+      toast("Fiche courte créée : " + label(nd) + ".");
+      dSelect(nd.id);
+    }
+  });
+
+  document.addEventListener("input", function (e) {
+    var el = e.target, kind = el.getAttribute("data-input"), k = el.getAttribute("data-k");
+    var nf = el.closest && el.closest('form[data-form="newart"], form[data-form="d-fiche"]');
+    if (nf && k) { // brouillon de fiche article : gardé si la page se redessine
+      var holder = nf.getAttribute("data-form") === "d-fiche" ? S.D.unknown : S[nf.getAttribute("data-flow")].unknown;
+      if (holder) { holder.vals = holder.vals || {}; holder.vals[k] = el.value; }
+      return;
+    }
+    if (!kind) return;
+    if (kind === "search") { var fl = el.getAttribute("data-flow"); S[fl].search = el.value; updateResults(fl); return; }
+    if (kind === "new") { S[el.getAttribute("data-flow")][k] = el.value; return; }
+    if (kind === "a") {
+      S.A.form[k] = el.value; var a = art(S.A.form.articleId);
+      if (S.A.err && S.A.err[k] && !validateA()[k]) clearFieldError(S.A, k, el, 'form[data-form="a-confirm"]');
+      if (k === "expiry") { $("#a-exp-state").innerHTML = aExpState(a); $("#a-actions").innerHTML = aActions(a); }
+      return;
+    }
+    if (kind === "b") { var bl = S.B.rec.lines.filter(function (l) { return l.id === el.getAttribute("data-id"); })[0]; bl[k] = el.value; refreshB(); return; }
+    if (kind === "c") {
+      S.C.form[k] = el.value;
+      var ca = art(S.C.sel);
+      if (S.C.err && S.C.err[k] && !(k === "qty" ? qtyCheck(el.value, true) : expiryError(el.value))) clearFieldError(S.C, k, el, 'form[data-form="c-count"]');
+      if (k === "qty" || k === "expiry") $("#c-exp-state").innerHTML = cExpState(ca);
+      if (k === "expiry") {
+        var expd = cFormExpired();
+        $("#c-reason-wrap").innerHTML = cReason(expd);
+        $("#c-submit").textContent = expd ? "Écarter cette ligne périmée" : "Pointer cette ligne";
+        var hw = $("#view .fhead-wrap"); if (hw) hw.outerHTML = headC();
+      }
+      return;
+    }
+    if (kind === "dq") {
+      S.D.q = el.value; var ul = $("#results-D"), sh = dShowResults(el.value);
+      if (ul) { ul.hidden = !sh; ul.innerHTML = sh ? dResultsHtml(el.value) : ""; }
+      return;
+    }
+    if (kind === "dadd") {
+      S.D.form[k] = el.value; var aD = art(S.D.sel);
+      if (S.D.err && S.D.err[k] && !(k === "qty" ? qtyCheck(el.value) : expiryError(el.value) || dExpired(aD))) clearFieldError(S.D, k, el, 'form[data-form="d-add"]');
+      if (k === "expiry") $("#d-exp-state").innerHTML = dExpState(aD);
+    }
+  });
+
+  document.addEventListener("change", function (e) {
+    var el = e.target;
+    if (el.getAttribute("data-input") === "setting") {
+      var room = el.getAttribute("data-room");
+      settings.alert[room] = +el.value;
+      addLog(S.flow === "cmp" ? "Réglage" : S.flow, "Alerte péremption " + ROOMS[room].name + " : " + (+el.value ? el.value + " mois avant" : "aucune"));
+      render(); focusLater("#set-" + room);
+    }
+  });
+
+  // Clavier : recherche, lignes (Entrée = champ suivant puis retour au scan), Échap, raccourcis de D
+  document.addEventListener("keydown", function (e) {
+    var el = e.target, kind = el.getAttribute && el.getAttribute("data-input");
+    if (kind === "search") {
+      var fl = el.getAttribute("data-flow"), first = $("#results-" + fl + " button");
+      if (e.key === "ArrowDown" && first) { e.preventDefault(); first.focus(); return; }
+      if (e.key === "Enter") { e.preventDefault(); if (first) first.click(); return; }
+      if (e.key === "Escape" && el.value) { e.preventDefault(); el.value = ""; S[fl].search = ""; updateResults(fl); return; }
+    }
+    if (kind === "dq" && e.key === "ArrowDown") { var firstRes = $("#results-D button"); if (firstRes) { e.preventDefault(); firstRes.focus(); } return; }
+    var list = el.closest && el.closest(".results");
+    if (list && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      e.preventDefault();
+      var btns = Array.prototype.slice.call(list.querySelectorAll("button")), i = btns.indexOf(el), nx = btns[i + (e.key === "ArrowDown" ? 1 : -1)];
+      if (nx) nx.focus(); else if (e.key === "ArrowUp") { var sf = $("#search-" + S.flow) || $("#scan-" + S.flow); if (sf) sf.focus(); }
+      return;
+    }
+    if (e.key === "Enter" && kind === "b") {
+      e.preventDefault();
+      var lid = el.getAttribute("data-id"), lk = el.getAttribute("data-k"), bl = S.B.rec.lines.filter(function (l) { return l.id === lid; })[0];
+      focusLater(lk === "qty" && art(bl.articleId).exp ? "#b-exp-" + lid : entryFocus("B"));
+      return;
+    }
+    if (e.key === "Escape") {
+      if (S.flow === "A" && S.A.phase === "form") { e.preventDefault(); goBackA(); return; }
+      if (S.flow === "C" && S.C.sel) { e.preventDefault(); goBackC(); return; }
+      if (kind === "b") { e.preventDefault(); focusLater(entryFocus("B")); return; }
+    }
+  });
+
+  // D : le simulateur de bips replié garde son état d'ouverture (interface seulement)
+  document.addEventListener("toggle", function (e) { if (e.target.id === "d-sim") S.D.simOpen = e.target.open; }, true);
+
+  // Onglets : flèches, Début, Fin
+  $(".flows").addEventListener("keydown", function (e) {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll(".flows [role=tab]")), i = tabs.indexOf(document.activeElement);
+    if (i < 0) return;
+    var n = e.key === "ArrowRight" ? (i + 1) % tabs.length : e.key === "ArrowLeft" ? (i + tabs.length - 1) % tabs.length : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
+    if (n < 0) return;
+    e.preventDefault(); tabs[n].click(); tabs[n].focus();
+  });
+
+  $("#today").textContent = "Aujourd'hui (démo) : " + fr(TODAY_ISO);
+  render();
+
+  // Accès pour les tests automatisés de la maquette (rien n'est persisté)
+  window.__clmoDemo = { state: S, stock: function () { return stock; }, log: function () { return log; }, catalogue: function () { return catalogue; }, settings: settings,
+    simBusy: function () { return simPending; } };
+})();
+</script>
+</body>
+</html>
